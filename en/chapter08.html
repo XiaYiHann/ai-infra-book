@@ -1,0 +1,2009 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Chips, networks, inference and training systems through the lens of data movement">
+      
+      
+      
+        <link rel="canonical" href="https://xiayihann.github.io/ai-infra-book/en/chapter08.html">
+      
+      
+        <link rel="prev" href="chapter07.html">
+      
+      
+        <link rel="next" href="chapter09.html">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>8. Inference Optimization - Understanding AI Infra: Quantitative Analysis and System Design</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/reading.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#inference-optimization" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Understanding AI Infra: Quantitative Analysis and System Design" class="md-header__button md-logo" aria-label="Understanding AI Infra: Quantitative Analysis and System Design" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Understanding AI Infra: Quantitative Analysis and System Design
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              8. Inference Optimization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href=".././" hreflang="zh" class="md-select__link">
+              简体中文
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../en/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../zh-tw/" hreflang="zh-TW" class="md-select__link">
+              繁體中文
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../ru/" hreflang="ru" class="md-select__link">
+              Русский
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/XiaYiHann/ai-infra-book" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    XiaYiHann/ai-infra-book
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Understanding AI Infra: Quantitative Analysis and System Design" class="md-nav__button md-logo" aria-label="Understanding AI Infra: Quantitative Analysis and System Design" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Understanding AI Infra: Quantitative Analysis and System Design
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/XiaYiHann/ai-infra-book" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    XiaYiHann/ai-infra-book
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preface
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter01.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    1. First Encounter with AI Infrastructure
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter02.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    2. Model Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter03.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    3. Inference and Training Workloads
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter04.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    4. Accelerator Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter05.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    5. Operators and Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter06.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    6. Supernodes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter07.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    7. Datacenter Networks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    8. Inference Optimization
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="chapter08.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    8. Inference Optimization
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#81-the-execution-process-and-resource-requirements-of-inference-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 The Execution Process and Resource Requirements of Inference Requests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.1 The Execution Process and Resource Requirements of Inference Requests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#811-execution-resources-and-the-request-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1.1 Execution Resources and the Request Lifecycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#812-storage-capacity-requirements-for-weights-kv-and-runtime-buffers" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1.2 Storage Capacity Requirements for Weights, KV, and Runtime Buffers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#813-from-single-request-time-to-service-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1.3 From Single-Request Time to Service Targets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#82-batching-and-request-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Batching and Request Scheduling
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.2 Batching and Request Scheduling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#821-how-weight-reuse-improves-batching-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.1 How Weight Reuse Improves Batching Efficiency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#822-from-fixed-batch-to-continuous-batching" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.2 From Fixed Batch to Continuous Batching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#823-the-interference-of-long-prefills-with-generation-and-chunked-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.3 The interference of long prefills with generation, and chunked execution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#824-token-budget-dynamic-shape-and-execution-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.4 Token budget, dynamic shape, and execution time
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#83-allocation-reuse-and-release-of-the-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Allocation, reuse, and release of the KV cache
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.3 Allocation, reuse, and release of the KV cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#831-reservation-fragmentation-and-paged-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.1 Reservation, fragmentation, and paged allocation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#832-branch-sharing-copy-on-write-and-memory-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.2 Branch sharing, copy-on-write, and memory release
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#833-prefix-reuse-across-conversations-and-agent-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.3 Prefix reuse across conversations and agent tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#834-cache-admission-eviction-swap-out-and-recomputation" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.4 Cache Admission, Eviction, Swap-Out, and Recomputation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#84-compression-and-offloading" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4 Compression and Offloading
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.4 Compression and Offloading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#841-memory-footprint-after-weight-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.1 Memory Footprint After Weight Quantization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#842-kv-compression-and-read-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.2 KV Compression and Read Cost
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#843-weight-offloading-prefetch-and-per-step-movement" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.3 Weight Offloading, Prefetch, and Per-Step Movement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#844-choosing-capacity-and-speed-under-a-quality-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.4 Choosing Capacity and Speed Under a Quality Constraint
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#85-speculative-decoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5 Speculative Decoding
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.5 Speculative Decoding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#851-drafts-verification-rollback-and-correctness" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.1 Drafts, verification, rollback, and correctness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#852-per-round-latency-and-output-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.2 Per-round latency and output count
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#853-draft-sources-and-serial-versus-parallel-generation-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.3 Draft sources and serial versus parallel generation methods
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#854-dynamic-selection-of-draft-length-and-concurrency-contention" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.4 Dynamic selection of draft length and concurrency contention
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#86-performance-and-configuration-choices-under-request-load" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6 Performance and Configuration Choices Under Request Load
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.6 Performance and Configuration Choices Under Request Load">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#861-arrival-rate-queueing-admission-and-cancellation" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6.1 Arrival rate, queueing, admission, and cancellation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#862-effective-throughput-under-quality-and-slo-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6.2 Effective throughput under quality and SLO constraints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#863-configuration-accelerators-and-full-task-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6.3 Configuration, accelerators, and full-task cost
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#history-and-further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      History and Further Reading
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chapter-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chapter Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter09.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    9. Distributed Inference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter10.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    10. Training Systems
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter11.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    11. Resource Scheduling and Execution Environments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter12.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    12. Edge-Cloud Coordination
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#81-the-execution-process-and-resource-requirements-of-inference-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 The Execution Process and Resource Requirements of Inference Requests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.1 The Execution Process and Resource Requirements of Inference Requests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#811-execution-resources-and-the-request-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1.1 Execution Resources and the Request Lifecycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#812-storage-capacity-requirements-for-weights-kv-and-runtime-buffers" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1.2 Storage Capacity Requirements for Weights, KV, and Runtime Buffers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#813-from-single-request-time-to-service-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1.3 From Single-Request Time to Service Targets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#82-batching-and-request-scheduling" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Batching and Request Scheduling
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.2 Batching and Request Scheduling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#821-how-weight-reuse-improves-batching-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.1 How Weight Reuse Improves Batching Efficiency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#822-from-fixed-batch-to-continuous-batching" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.2 From Fixed Batch to Continuous Batching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#823-the-interference-of-long-prefills-with-generation-and-chunked-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.3 The interference of long prefills with generation, and chunked execution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#824-token-budget-dynamic-shape-and-execution-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2.4 Token budget, dynamic shape, and execution time
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#83-allocation-reuse-and-release-of-the-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Allocation, reuse, and release of the KV cache
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.3 Allocation, reuse, and release of the KV cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#831-reservation-fragmentation-and-paged-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.1 Reservation, fragmentation, and paged allocation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#832-branch-sharing-copy-on-write-and-memory-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.2 Branch sharing, copy-on-write, and memory release
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#833-prefix-reuse-across-conversations-and-agent-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.3 Prefix reuse across conversations and agent tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#834-cache-admission-eviction-swap-out-and-recomputation" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3.4 Cache Admission, Eviction, Swap-Out, and Recomputation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#84-compression-and-offloading" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4 Compression and Offloading
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.4 Compression and Offloading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#841-memory-footprint-after-weight-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.1 Memory Footprint After Weight Quantization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#842-kv-compression-and-read-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.2 KV Compression and Read Cost
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#843-weight-offloading-prefetch-and-per-step-movement" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.3 Weight Offloading, Prefetch, and Per-Step Movement
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#844-choosing-capacity-and-speed-under-a-quality-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4.4 Choosing Capacity and Speed Under a Quality Constraint
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#85-speculative-decoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5 Speculative Decoding
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.5 Speculative Decoding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#851-drafts-verification-rollback-and-correctness" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.1 Drafts, verification, rollback, and correctness
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#852-per-round-latency-and-output-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.2 Per-round latency and output count
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#853-draft-sources-and-serial-versus-parallel-generation-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.3 Draft sources and serial versus parallel generation methods
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#854-dynamic-selection-of-draft-length-and-concurrency-contention" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.5.4 Dynamic selection of draft length and concurrency contention
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#86-performance-and-configuration-choices-under-request-load" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6 Performance and Configuration Choices Under Request Load
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.6 Performance and Configuration Choices Under Request Load">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#861-arrival-rate-queueing-admission-and-cancellation" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6.1 Arrival rate, queueing, admission, and cancellation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#862-effective-throughput-under-quality-and-slo-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6.2 Effective throughput under quality and SLO constraints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#863-configuration-accelerators-and-full-task-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.6.3 Configuration, accelerators, and full-task cost
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#history-and-further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      History and Further Reading
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chapter-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Chapter Summary
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="inference-optimization">Inference Optimization<a class="headerlink" href="#inference-optimization" title="Permanent link">&para;</a></h1>
+<p>The same model running on the same accelerator may deliver only a few dozen tokens per second to a single user, yet deliver thousands of tokens per second in aggregate across all users. Each read of the weights in decode performs very little computation, so speed is limited by memory bandwidth rather than peak compute; computing multiple requests together so that they share a single read of the weights can multiply total throughput. At the same time, each request's context length, queueing time, and execution order determine when the user actually receives an answer. This chapter discusses how to organize these requests so that more correct answers are returned within a given time budget.</p>
+<p>An inference instance can run on a single card, or be executed jointly by multiple cards or multiple servers. Chapters 6 and 7 already explained how model computation is split and how accelerators communicate. This chapter takes a given accelerator combination as its starting point and studies batching, request scheduling, memory management, compression, offloading, and speculative decoding, comparing the execution efficiency of different runtime configurations. Chapter 9 then discusses where computation and state should be distributed, how to organize complete replicas, staged service pools, and operator division of labor, and how to determine service scale accordingly.</p>
+<p>This chapter starts from a concrete design problem. The example Qwen3-8B instance runs on a single RTX PRO 6000 Blackwell Workstation Edition GPU: 96 GB of GPU memory, 1792 GB/s of bandwidth, a dense peak of 503.8 TFLOP/s with BF16 input and FP32 accumulation, and a power cap of 600 W.<sup id="fnref:device"><a class="footnote-ref" href="#fn:device">2</a></sup> Except for Experiment 8-7, which runs on an Apple M2 Max, all experiments in this chapter run on this card. Model weights use the BF16 floating-point format at 2 bytes per element, occupying about 15.3 GiB. The KV cache stores the keys (K) and values (V) of context tokens, for later reads during attention computation. As in Experiment 8-9, this instance is allocated 32 GiB of GPU memory, of which 12 GiB is reserved for the KV cache and auxiliary buffers, and the remaining roughly 4.7 GiB is used for activations, the fixed buffers of computation graph replay (Section 5.5), and other execution workspace.</p>
+<p>The instance handles two types of requests: short conversations with 2048-token input, and long-context requests with 8192-token input; both output 256 tokens. The first 6144 tokens of the long request are an identical system prompt and tool definitions. Every request must return a complete and correct answer within 7 seconds of arrival. A short request running alone on this card takes about 6.95 seconds (Section 8.1.1), leaving only about 0.05 seconds of margin against this deadline. These conditions will be used repeatedly in what follows.</p>
+<table>
+<thead>
+<tr>
+<th>Design condition</th>
+<th style="text-align: right;">Short conversation</th>
+<th style="text-align: right;">Long context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input length</td>
+<td style="text-align: right;">2048 tokens</td>
+<td style="text-align: right;">8192 tokens</td>
+</tr>
+<tr>
+<td>Output length</td>
+<td style="text-align: right;">256 tokens</td>
+<td style="text-align: right;">256 tokens</td>
+</tr>
+<tr>
+<td>Common prefix length</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6144 tokens</td>
+</tr>
+<tr>
+<td>Completion deadline</td>
+<td style="text-align: right;">7 s</td>
+<td style="text-align: right;">7 s</td>
+</tr>
+</tbody>
+</table>
+<p>We first calculate how many requests' worth of KV cache the instance can hold simultaneously, then calculate how much weight-reading a larger batch saves per output token. We then introduce paging, prefix sharing, compression, offloading, and speculative decoding, analyzing what each saves and what each adds. At the end of the chapter, these analyses are applied to one question: which configuration should be chosen when 16 long requests arrive simultaneously?</p>
+<h2 id="81-the-execution-process-and-resource-requirements-of-inference-requests">8.1 The Execution Process and Resource Requirements of Inference Requests<a class="headerlink" href="#81-the-execution-process-and-resource-requirements-of-inference-requests" title="Permanent link">&para;</a></h2>
+<h3 id="811-execution-resources-and-the-request-lifecycle">8.1.1 Execution Resources and the Request Lifecycle<a class="headerlink" href="#811-execution-resources-and-the-request-lifecycle" title="Permanent link">&para;</a></h3>
+<p>A <strong>request</strong> is a unit of inference work with its own input, output, and completion condition. The batch discussed in this chapter refers to the group of input tokens computed together in a single accelerator execution; a <strong>scheduling iteration</strong> is one cycle in which the scheduler selects the current round's work, submits it for execution, and processes the results. A request can span many iterations, and the other requests it is batched with may differ from round to round.</p>
+<p><img alt="Figure 8-1: A continues execution across two iterations. B finishes in the first round, and in the next round C takes over its execution slot (each round reserves one row of computation for each active request); request state is still stored by its own identity." src="images/figure-8-request-iterations.png" /></p>
+<p>After a request arrives, it first enters a waiting queue. Only after the scheduler adds it to a batch and allocates KV space does the model begin processing the input — the prefill stage. Since the input tokens are all given up front, the model can compute multiple tokens at once and store the keys and values of each layer. Once the last token of the prompt has been computed, the model generates the first output token.</p>
+<p>The instance then enters the decode stage. The model takes the just-generated token as the input for the next forward pass, reads the context KV, and generates the next token. A single request must complete these steps sequentially, but the current steps of different requests can be computed together. So even though a single request can only generate tokens one at a time, an instance can still increase total throughput by batching.</p>
+<p>On this card, Experiment 8-1 runs a single 2K-input short request alone: prefill and returning the first token takes about 0.096 seconds, after which a token is returned on average every 26.5 ms. Assuming this request first queues for 0.1 seconds, the user receives the first token at 0.196 seconds after arrival. With a total of 256 output tokens, there are 255 output intervals, so the total request time is</p>
+<div class="arithmatex">\[
+0.1+0.096+255\times0.0265=6.95\ \mathrm{s}.
+\]</div>
+<p>This request finishes within 7 seconds. If another short request's prefill is inserted during generation, one output interval must wait an additional roughly 0.096 seconds, stretching from 26.5 ms to about 123 ms, and the total time increases to 7.05 seconds. The computation for each token has not changed at all — merely reordering execution can push a request past its deadline.</p>
+<p>Figure 8-2 draws these 6.95 seconds as a timeline. The moment the first token is returned splits the timeline into two segments: everything before it — queueing and input processing — determines when the user sees a response, and the 255 intervals after it determine when the user receives the complete answer. Every subsequent scheduling optimization discussed later can be understood as changing the length of one of these two segments.</p>
+<p><img alt="Figure 8-2: A request outputting 256 tokens. Queueing takes 0.1 seconds, prefill takes 0.096 seconds, and each of the following 255 output intervals is 26.5 ms (measured for batch size 1 in Experiment 8-1). The bar is drawn to scale in real time, dots mark the first and last tokens, and the dashed line at 7 seconds marks the deadline." src="images/figure-8-1-lifecycle.png" /></p>
+<p>Once a request completes, the scheduler no longer schedules computation for it, and the state manager decides what to do with the KV left behind. KV unique to that request is released when the request ends, while the KV of a shared common prefix can be retained for reuse by later requests, continuing to be managed under the caching policy. Section 8.3 further explains when this cache is shared and when it is released.</p>
+<h3 id="812-storage-capacity-requirements-for-weights-kv-and-runtime-buffers">8.1.2 Storage Capacity Requirements for Weights, KV, and Runtime Buffers<a class="headerlink" href="#812-storage-capacity-requirements-for-weights-kv-and-runtime-buffers" title="Permanent link">&para;</a></h3>
+<p>To advance multiple requests along their own timelines, an instance must simultaneously hold weights, request state, and intermediate computation results. This section's example uses a single card, so it lists only the memory footprint on this one card. A multi-card instance must instead list the weight shards, KV, and buffers held on each card separately: idle memory on one card can only be used for computation on another card if the data placement is changed.</p>
+<p>Let <span class="arithmatex">\(M_w\)</span> denote the capacity of resident weights, <span class="arithmatex">\(M_{\mathrm{KV}}\)</span> the total physical KV block capacity after deduplicating shared references (KV is allocated in fixed-size blocks, and blocks shared by multiple requests are counted only once), <span class="arithmatex">\(M_a\)</span> the capacity of activations and general workspace, and <span class="arithmatex">\(M_u\)</span> the capacity of other buffers such as computation graph replay. The sum of these memory footprints must be less than or equal to the accelerator's available capacity <span class="arithmatex">\(C\)</span>:</p>
+<div class="arithmatex">\[
+M_w+M_{\mathrm{KV}}+M_a+M_u\le C.
+\]</div>
+<p>Among these memory footprints, the weights are loaded into memory before any requests arrive, while KV keeps growing as requests arrive and generate output. To determine how many requests an instance can handle simultaneously, we first work out how much KV must be stored per token. Qwen3-8B has 36 layers, 8 KV heads per layer, and a head dimension of 128. Each token must store K and V at every layer, and BF16 uses 2 bytes per element, so the KV capacity required per token is</p>
+<div class="arithmatex">\[
+k=2\times36\times8\times128\times2
+ =147\,456\ \mathrm{bytes}=144\ \mathrm{KiB}.
+\]</div>
+<p>A 2048-token input occupies 288 MiB of KV; an 8192-token input occupies 1152 MiB. All requests share about 15.3 GiB of weights, but every additional long request with independent context adds 1.125 GiB of KV. Sixteen long requests just to hold their input KV would need 18 GiB, exceeding the reserved 12 GiB.<sup id="fnref:batch"><a class="footnote-ref" href="#fn:batch">1</a></sup></p>
+<p>KV continues to grow as output is generated. Prefill produces the first output token, after which the preceding 255 output tokens are fed back into the model one at a time to generate the remaining 255 tokens. A short request computes <span class="arithmatex">\(2048+255=2303\)</span> tokens in total, and a long request computes <span class="arithmatex">\(8192+255=8447\)</span> tokens in total. With 16 tokens per block, they need space allocated to hold 2304 and 8448 tokens, respectively.</p>
+<table>
+<thead>
+<tr>
+<th>Independent request</th>
+<th style="text-align: right;">KV after prefill</th>
+<th style="text-align: right;">KV allocated after 256 output tokens</th>
+<th style="text-align: right;">Requests that fit in 12 GiB simultaneously</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Short conversation</td>
+<td style="text-align: right;">288 MiB</td>
+<td style="text-align: right;">324 MiB</td>
+<td style="text-align: right;">37</td>
+</tr>
+<tr>
+<td>Long context</td>
+<td style="text-align: right;">1152 MiB</td>
+<td style="text-align: right;">1188 MiB</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<p>The final column comes from <span class="arithmatex">\(\lfloor12288/324\rfloor\)</span> and <span class="arithmatex">\(\lfloor12288/1188\rfloor\)</span>, respectively. Computing based only on the KV size at the end of prefill, 12 GiB could hold 42 short requests; but once these requests have all generated 256 output tokens, the required space grows to 13,608 MiB. Reserving the space needed for the generation stage at the time a request is admitted avoids discovering a memory shortfall halfway through execution.</p>
+<p>Sharing a common prefix can save further memory. The first 6144 tokens of a long request occupy 864 MiB of KV, and the remaining input occupies 288 MiB. If 16 requests each store their own copy of the prefix, 16 identical copies of KV are stored; if they instead reference the same KV, the space saved can be used for each request's own suffix. Section 8.3 will describe the specific block-mapping scheme and calculate the total capacity at the end of generation.</p>
+<h3 id="813-from-single-request-time-to-service-targets">8.1.3 From Single-Request Time to Service Targets<a class="headerlink" href="#813-from-single-request-time-to-service-targets" title="Permanent link">&para;</a></h3>
+<p>We now turn the two segments of the timeline in Section 8.1.1 into metrics against which deadlines can be set. Let <span class="arithmatex">\(t_a\)</span> denote the request's arrival time, <span class="arithmatex">\(G\)</span> the total number of output tokens, and <span class="arithmatex">\(t_1\)</span>, <span class="arithmatex">\(t_G\)</span> the moments the first and last tokens are returned to the user. Then</p>
+<div class="arithmatex">\[
+\mathrm{TTFT}=t_1-t_a,
+\]</div>
+<p>and the <span class="arithmatex">\(j\)</span>-th output interval is <span class="arithmatex">\(\mathrm{ITL}_j=t_{j+1}-t_j\)</span>. Adding the time before and after the first output, the complete request time is</p>
+<div class="arithmatex">\[
+T_{\mathrm{request}}=\mathrm{TTFT}+\sum_{j=1}^{G-1}\mathrm{ITL}_j.
+\]</div>
+<p>In the example in Section 8.1.1, TTFT is 0.196 seconds, and the following 255 output intervals total 6.76 seconds. A shorter TTFT lets the user see a response sooner, uniform output intervals make continuous reading easier, and the total time determines when the complete answer is available. An SLO turns these requirements into deadlines. The opening example of this chapter requires the total time not to exceed 7 seconds; the scheduling examples below will also compare the longest output interval.</p>
+<p>These metrics apply to a single request; the instance's overall output also depends on how many requests are processed at once — the batch size (hereafter batch). Throughput is the amount of work completed per unit time. When Experiment 8-1 processes 16 2K requests simultaneously, each decode round takes about 27.44 ms and produces 16 tokens per round, giving a generation throughput of about <span class="arithmatex">\(16/0.02744\approx583\)</span> tokens/s; when a single request produces one token every 26.26 ms, this value is only about 38. Either increasing the number of outputs per round or shortening the time per round raises throughput; how long a user actually waits also depends on the queueing time before the request begins execution.</p>
+<p>Evaluating service quality also requires checking whether the answer is correct. Fixing the output length makes it easier to compare execution time under identical workloads; letting the model stop naturally instead lets us observe answer correctness, response length, and retry count. Section 8.6 calculates the number of requests completed correctly and on time per unit of time, jointly evaluating speed and quality.</p>
+<h2 id="82-batching-and-request-scheduling">8.2 Batching and Request Scheduling<a class="headerlink" href="#82-batching-and-request-scheduling" title="Permanent link">&para;</a></h2>
+<h3 id="821-how-weight-reuse-improves-batching-efficiency">8.2.1 How Weight Reuse Improves Batching Efficiency<a class="headerlink" href="#821-how-weight-reuse-improves-batching-efficiency" title="Permanent link">&para;</a></h3>
+<p>Consider the matrix multiplication <span class="arithmatex">\(Y=XW\)</span>, with input matrix <span class="arithmatex">\(X\)</span> having <span class="arithmatex">\(b\)</span> rows. The same weight element participates in the computation for every row, so processing multiple rows together lets more multiply-adds be completed per weight read. Assuming each weight element is read only once per batch, each multiply-add counts as two operations, and each weight element occupies <span class="arithmatex">\(s_w\)</span> bytes. Counting only weight reads, the arithmetic intensity is</p>
+<div class="arithmatex">\[
+I_{\mathrm{weight}}\approx\frac{2b}{s_w}.
+\]</div>
+<p>For BF16, <span class="arithmatex">\(s_w=2\)</span>. Increasing the number of requests executing one decode step together from 1 to 16 — each request supplying one new token, with each token's feature vector forming a row of the input matrix — grows the matrix from one row to 16 rows, so the amount of work performed per weight read grows to 16 times its original value. Different requests share the weight matrix, but attention computation must still read each request's own context KV separately.</p>
+<p>The precondition for sharing is that this batch of requests uses the same set of weights. <strong>Low-rank adaptation (LoRA)</strong> relaxes this precondition: it represents a weight adjustment as the product of two small matrices while leaving the base weights unchanged, so different tasks can share one base model and each attach only a small adapter (a trainable parameter module attached to the base model). For the Q and V projections of Qwen3-8B, using a low-rank dimension of 16 and BF16, one adapter occupies 14.6 MiB, and 100 adapters together occupy 1.43 GiB — far smaller than the 14.1 GiB of matrix weights.</p>
+<p>If a batch of requests comes from different adapters, all that remains shared is the base weights. The low-rank computation must be grouped by adapter, and each group's row count is the number of requests in this batch belonging to that adapter; the more scattered the adapters, the fewer rows per group, and the worse the weight reuse for this portion of the computation. So how many adapters and how many requests to place in one batch are two separate decisions.</p>
+<p>Capacity must likewise be computed separately. 100 adapters occupy 1.43 GiB, while 100 mutually non-sharing 8K contexts occupy 112.5 GiB of KV in total. How many adapters fit is determined by the small matrices, while how many requests can be served simultaneously is still determined by KV; ample headroom in the former does not imply ample headroom in the latter.<sup id="fnref:lora"><a class="footnote-ref" href="#fn:lora">10</a></sup></p>
+<p>Let <span class="arithmatex">\(D_w\)</span> denote the size of the matrix weights that need to be read only once per round, let each request have <span class="arithmatex">\(L\)</span> context tokens with no KV sharing between them, and let <span class="arithmatex">\(k\)</span> denote the KV capacity per token. The total read volume for one round, and the average read volume attributed to each output token, are respectively</p>
+<div class="arithmatex">\[
+D(b,L)=D_w+bLk,\qquad
+d(b,L)=\frac{D_w}{b}+Lk.
+\]</div>
+<p>In the per-output-token read volume, the first term is the amortized weight read, and the second is this request's context KV read. Qwen3-8B has <span class="arithmatex">\(D_w\)</span> of about 14.1 GiB, and the KV for a 2K context is 0.28125 GiB. As batch grows from 1 to 16, the weight read amortized per output token drops to about 0.88 GiB; as batch grows to 64, it drops further to about 0.22 GiB. At this point, each output token reads more KV than weights.<sup id="fnref2:batch"><a class="footnote-ref" href="#fn:batch">1</a></sup></p>
+<p>Figure 8-3 shows this change. Adjacent ticks on the horizontal axis represent a doubling of batch size, so the weight term halves each time; the KV term stays constant, and the sum of the two gradually approaches the horizontal line for KV alone. At a 2K context, as batch grows from 1 to 64, the read volume per output token drops from about 14.38 GiB to 0.50 GiB — about 1/29 of the original value. Once context length grows to 8K, the KV capacity becomes four times as large, and even after batching, more data must be read per output token.</p>
+<p><img alt="Figure 8-3: How batching reduces the read volume required per generated token. The horizontal axis is the number of requests generated simultaneously; the vertical axis is the total bytes read in a batch divided by the number of output tokens in that round. The blue and green solid lines correspond to requests with existing contexts of 2048 and 8192 tokens respectively, including both weight and KV reads; the same-colored horizontal dotted lines show only the KV read volume at that length. The gray dashed line shows the shared weight read volume within a batch divided by the number of requests. The model is Qwen3-8B using BF16; each matrix weight is read once per round, and each request's KV is independent. Both axes use a logarithmic scale." src="images/figure-8-2-batch.png" /></p>
+<p>As batch grows, the savings from amortizing weights gradually diminish. This can be described using the batch at which weight read volume equals KV read volume. The minimum batch at which the total KV read volume reaches or exceeds the shared weight read volume is</p>
+<div class="arithmatex">\[
+b_{\mathrm{KV}}=\left\lceil\frac{D_w}{Lk}\right\rceil.
+\]</div>
+<p>Computing with the unrounded weight byte count, the result is 51 for a 2K context and 13 for an 8K context. As context length grows fourfold, KV reads exceed weight reads at a much smaller batch. At the same time, a larger batch also requires more memory: 64 2K requests, together with the weights and the KV after one decode step, occupy about 35.7 GB in total. Batching reduces the read volume per output token, but increases the amount of data resident at once.</p>
+<p>We now estimate the time required for these reads. Let <span class="arithmatex">\(F\)</span> denote the computation for one request, <span class="arithmatex">\(P\)</span> the number of operations the accelerator completes per second, and <span class="arithmatex">\(\beta\)</span> the memory bandwidth. Computing the time required for computation and for reading separately, and taking the larger of the two to estimate the time for one round:</p>
+<div class="arithmatex">\[
+T_{\mathrm{step}}\approx\max\left(\frac{bF}{P},\frac{D_w+bLk}{\beta}\right).
+\]</div>
+<p>Setting the two terms equal and rearranging gives <span class="arithmatex">\(b(F/P-Lk/\beta)=D_w/\beta\)</span>. Each additional request adds <span class="arithmatex">\(F/P\)</span> to computation time and <span class="arithmatex">\(Lk/\beta\)</span> to KV read time. When the former is larger, computation time grows with batch size until it catches up to read time; otherwise, reading remains the more time-consuming term throughout. The values 51 and 13 above compare the volumes of two kinds of data read; this equation instead compares how computation and memory bandwidth each bound execution time.</p>
+<p>Both terms are computed using peak compute and peak bandwidth respectively, giving the physical lower bound for this card under these conditions. The ratio of this lower bound to the measured time for one round is exactly the MFU and MBU defined in Section 1.2.2; Section 8.6.3 will use per-round records to calibrate these two ratios, then apply them to the rest of this chapter's examples.</p>
+<p>Translating this into request time also requires checking whether a larger batch delays the first token, and whether the gap between successive outputs grows longer. The batch-sweep experiment records both of these changes simultaneously. For Qwen3-8B with a 2K input and 256-token output, as batch grows from 1 to 64, total throughput grows from about 37 to 1165 tokens/s; but the time to return the first token is delayed from about 96 ms to 3.29 seconds, and the average output interval grows from about 27 to 40 ms. Although each round produces more output, processing more input and running a larger batch also take more time. In this experiment, each batch of requests arrived together; an online service that additionally waits to fill a batch would add this waiting time to the first-token latency as well.<sup id="fnref:batch-measure"><a class="footnote-ref" href="#fn:batch-measure">3</a></sup></p>
+<blockquote>
+<p><strong>Exercise 8-1 · Calculation: How does read volume change as batch grows?</strong> Take <span class="arithmatex">\(D_w=15,136,811,008\)</span> bytes and <span class="arithmatex">\(k=144\)</span> KiB, and calculate the per-output-token read volume for 2K and 8K contexts at batch sizes 1, 4, 16, and 64. For each context length, find the smallest integer batch at which KV read volume first reaches or exceeds the amortized weight read volume. Then, using 12 GiB of available KV memory, 16 tokens per block, and 256 output tokens, find the maximum number of independent requests that can be accommodated for each context length. Compare this maximum request count against the batch size at which the two read volumes become equal, and determine whether the capacity constraint would prevent the batch from growing that large in the first place.</p>
+</blockquote>
+<p>If the weights were instead served from a sufficiently fast independent storage, read time would drop, and the benefit of batching would need to be recalculated. Following the 8K example from Chapter 4, let <span class="arithmatex">\(W\)</span> be the number of weight bytes read in the whole batch, <span class="arithmatex">\(B\)</span> the number of requests in the batch, and <span class="arithmatex">\(K\)</span> the number of KV bytes read per request in this step. In the conventional scheme, the HBM read volume amortized per output token is <span class="arithmatex">\(W/B+K\)</span>; when weights are served from a sufficiently fast independent ROM, HBM must still read <span class="arithmatex">\(K\)</span> per output token.<sup id="fnref:core-calculation"><a class="footnote-ref" href="#fn:core-calculation">30</a></sup> In Figure 8-4, the gap between the two curves narrows as batch grows, showing that the benefit previously gained by using batch size to dilute weight reads is disappearing.</p>
+<p>However, batch size still affects how well matrix computation utilizes compute units, as well as the KV read volume within the batch. Substituting the new read volume into the time model above lets us find the crossover point between computation and KV reads, and then choose a batch size based on first-token latency and output interval.</p>
+<p><img alt="Figure 8-4: HBM read volume amortized per output token. With a fixed 8K context, the conventional path is W/B+K and the independent fast-ROM path is K; the vertical axis is computed by the formula above. W is the number of weight bytes read in the whole batch, B is the number of requests in the batch, and K is the number of KV bytes read per request in this step; W/B+K is the read volume amortized per output token." src="images/figure-8-batch-counterfactual.png" /></p>
+<h3 id="822-from-fixed-batch-to-continuous-batching">8.2.2 From Fixed Batch to Continuous Batching<a class="headerlink" href="#822-from-fixed-batch-to-continuous-batching" title="Permanent link">&para;</a></h3>
+<p>Two requests begin generating at the same time; one needs eight tokens, the other only two. Once the short request finishes, the long request still has six steps to go. If we insist on waiting for both requests to finish before starting the next group, the execution slot freed by the short request sits idle the whole time. <strong>Fixed batching</strong> admits and finishes a whole group together; <strong>continuous batching</strong> instead reorganizes active requests at each iteration boundary, admitting new requests as soon as a slot opens up.</p>
+<p>The batch analysis in Section 8.2.1 assumed that <span class="arithmatex">\(b\)</span> requests participate in computation each round, but in practice the row count changes as requests finish and new ones are admitted. The execution slot in Figure 8-1 corresponds to one row of computation here, a different resource from the communication request slots recorded in Chapter 7. Whether new requests can be admitted promptly determines how many rows can participate in computation in the next round.</p>
+<p>Admitting new requests sooner also means their input computation occupies the accelerator sooner. If a new request carries a long prompt, its prefill lengthens the wait between two decode steps of existing requests. The scheduler must therefore divide accelerator time between two things: processing new requests' input, and letting existing requests continue generating.<sup id="fnref:schedule-survey"><a class="footnote-ref" href="#fn:schedule-survey">4</a></sup></p>
+<p><strong>Example: why does continuous batching shorten total time yet lengthen output intervals?</strong> At most two requests run at once. r0 and r1 arrive at time zero, each with a 2048-token input, outputting 8 and 2 tokens respectively; r2 arrives at 20 ms with an 8192-token input and outputs 2 tokens; r3 arrives at 30 ms with a 2048-token input and outputs 4 tokens. The time per round is fit from the batch-1 measurements in Experiment 8-1: a fixed 26.22 ms, plus 30.4 μs per new token, plus 3 ns per query-key pair satisfying the causal relationship. These parameters reproduce the measured 26.26 ms for one decode round and 94.8 ms for prefill when a 2K request runs alone. The fixed component is the part of a round independent of token count, including reading the full set of weights (about 8.4 ms at the peak bandwidth of 1792 GB/s) and per-kernel submission overhead.<sup id="fnref:schedule"><a class="footnote-ref" href="#fn:schedule">5</a></sup></p>
+<p>Fixed batching makes r2 and r3 wait for the entire r0/r1 group to finish, giving a total time of about 870 ms. Continuous batching admits r2 as soon as r1 finishes, dropping the total time to about 766 ms; but r0's next output must then wait for r2's 8K prefill, and the maximum output interval grows from about 26 ms to 376 ms. Total time is reduced by about 12%, while one output stall grows to 14 times its original length.</p>
+<p><img alt="Figure 8-5: Fixed batching waits for the whole group to finish before admitting r2 and r3. Blue is prefill, green is decode, and triangles mark arrival times. The width of each colored band is the duration of the whole scheduling iteration, with times computed from measurements fit on the RTX PRO 6000." src="images/figure-8-3-scheduling.png" /></p>
+<p><img alt="Figure 8-6: Continuous batching admits r2 as soon as r1 finishes. Each row is one request; blue is input processing (prefill), green is output generation (decode), triangles mark request arrival times, and the width of each band is the duration of the scheduling iteration it belongs to. r0 waits for r2's 8K input processing, and the longest output interval grows to about 376 ms; all requests finish in about 766 ms." src="images/figure-8-scheduling-continuous.png" /></p>
+<p>Taking this further, splitting r2's prefill into chunks of 2048 tokens each, processing at most 4096 tokens per round (the same setting as in Experiment 8-1), and letting existing requests continue decoding before each chunk of new input is processed, the maximum output interval drops to about 133 ms, and all requests finish in a total of about 844 ms. After chunking, the scheduler can more frequently let existing requests continue generating, making the output intervals more even.</p>
+<p><img alt="Figure 8-7: Splitting a long input into chunks, letting existing requests generate first each round before processing one chunk of new input. Each row is one request; blue is input processing, green is output generation, and triangles mark arrival times. Chunking reduces the longest output interval to about 133 ms, with all requests finishing in about 844 ms. The horizontal axis uses the same time scale as Figures 8-5 and 8-6." src="images/figure-8-scheduling-chunked.png" /></p>
+<h3 id="823-the-interference-of-long-prefills-with-generation-and-chunked-execution">8.2.3 The interference of long prefills with generation, and chunked execution<a class="headerlink" href="#823-the-interference-of-long-prefills-with-generation-and-chunked-execution" title="Permanent link">&para;</a></h3>
+<p>The larger the prefill block processed at once, the fewer rounds of input processing a new request needs; the smaller the block, the sooner already-running requests get their next chance to execute. Schedulers typically first schedule requests that are decoding, then use whatever remains of this round's token budget to process prefill. Long inputs are thereby spread across computation in multiple output intervals.</p>
+<p>Even with a fixed block length, the attention workload still grows with context length. Let the current block contain <span class="arithmatex">\(c\)</span> new tokens, with an existing context length of <span class="arithmatex">\(h\)</span>. The first new token attends to <span class="arithmatex">\(h+1\)</span> tokens, the second to <span class="arithmatex">\(h+2\)</span>, and the last to <span class="arithmatex">\(h+c\)</span>. Summing these pairs term by term:</p>
+<div class="arithmatex">\[
+N_{\mathrm{pair}}=(h+1)+(h+2)+\cdots+(h+c)
+=ch+\frac{c(c+1)}{2}.
+\]</div>
+<p>The <span class="arithmatex">\(ch\)</span> term comes from new tokens accessing the old context, and the triangular term comes from causal attention within the block. Taking <span class="arithmatex">\(c=512\)</span>: the first block's 131,328 pairs come entirely from within the block; the last block of an 8K input already has 7680 context tokens, and its pair count rises to 4,063,488 — about 31 times that of the first block.</p>
+<p>Figure 8-8 depicts the pair count as area: each new token must access the entire old context, forming the rectangle on the left; within the block, a token can only attend to positions at or before its own, forming the triangle on the right. With a fixed block length, the triangle on the right stays constant, while the rectangle on the left widens as the context grows. This is why the last block requires more attention computation.</p>
+<p><img alt="Figure 8-8: When processing 4 tokens for the first time, there is no old context — only causal attention pairs among the new tokens, forming 1 + 2 + 3 + 4 = 10 green cells. White cells represent future tokens, which do not participate in the current query." src="images/figure-8-4-attention.png" /></p>
+<p><img alt="Figure 8-9: With an existing context of 8 tokens, the 4 new tokens form 4 × 8 = 32 blue cells against the old context, while the within-block portion remains 10 green cells. With the same block length, the total pair count rises from 10 to 42." src="images/figure-8-attention-history.png" /></p>
+<p>The model must also run projections and the FFN; this per-token feature transformation processes 512 new tokens per block, so its workload is roughly constant. In the per-block records already collected, the last block's model-backbone matrix computation is about 32% greater than the first block's, with median execution time rising from about 25.3 ms to 35.1 ms — an increase of about 39%. The overall block execution time is therefore jointly determined by two parts: one that varies mainly with the number of new tokens, and another that also grows with the existing context length.<sup id="fnref:chunk"><a class="footnote-ref" href="#fn:chunk">6</a></sup></p>
+<p>Context growth explains why blocks of the same size get progressively slower; shrinking the block length brings a different kind of overhead. Splitting a 256-token block into two 128-token blocks doubles the scheduling opportunities and halves the matrix row count, but each smaller block still has to use the same set of weights. Take a layer's FFN weights of 288 MiB as an example: if two executions each read them from GPU memory separately, this portion of reads rises from 288 to 576 MiB. Smaller blocks give already-running requests earlier execution opportunities, but also increase the number of executions; the scheduler should choose the largest block that still satisfies the output-interval requirement, so as to minimize extra launches and reads.<sup id="fnref:nanoflow"><a class="footnote-ref" href="#fn:nanoflow">7</a></sup></p>
+<h3 id="824-token-budget-dynamic-shape-and-execution-time">8.2.4 Token budget, dynamic shape, and execution time<a class="headerlink" href="#824-token-budget-dynamic-shape-and-execution-time" title="Permanent link">&para;</a></h3>
+<p>Schedulers typically set an upper limit on the number of tokens processed per round, called the token budget; the 4096 tokens processed per round at most in the chunking example of Section 8.2.2 is one instance of this. Actual execution, however, must assemble the feature vectors of these tokens into a matrix and select a kernel or a pre-captured CUDA Graph (Section 5.5.2). The matrix actually executed may be larger than what this round strictly needs, so processing one fewer token does not necessarily mean doing less computation.</p>
+<p>For example, suppose graphs are pre-captured for 16 rows and 32 rows, and inputs of 17 to 32 rows are all padded to 32 rows. Reducing the workload from 18 rows to 17 rows still executes the 32-row graph; only reducing further from 17 rows to 16 rows lets the smaller graph be used. Capturing a separate graph for 17 rows would eliminate the 15-row padding, but capturing that graph requires preparation time, and the buffer used for replay must also be held in memory long-term. Thus, when choosing the preset shapes for CUDA Graphs, the runtime memory overhead from Section 8.1 must also be factored in.</p>
+<p>Execution shape determines how long a round takes, while the token limit determines how much work this round assigns to new requests. Raising the limit lets long inputs finish processing sooner, but already-running requests must wait until this round ends before they can continue producing output. In a replay recording of six requests, requests arrive every 80 ms. As the per-round token limit rises from 512 to 8192, the queueing time in the engine for later-arriving requests drops from about 149 ms to under 0.1 ms, while the longest output interval instead rises from about 32 ms to 183 ms. The higher the limit, the more input a round completes, the sooner new requests leave the queue — and the longer already-running requests wait for their next output.<sup id="fnref:replay"><a class="footnote-ref" href="#fn:replay">8</a></sup></p>
+<p>Deciding how many tokens to process per round can therefore be done in two steps. First determine how long a round is allowed to run based on the permitted output interval, then combine this with the context length and the preset execution shape to convert that into a number of new tokens that can be processed. Within the same amount of time, requests with longer contexts can process fewer new tokens, while requests with shorter contexts can use larger blocks. Once the execution schedule is decided, KV space must still be allocated for these requests; the next section discusses how to allocate and reuse this memory.</p>
+<blockquote>
+<p><strong>Exercise 8-2 · Core · Analysis: determining prefill block size from output-interval constraints.</strong> Using the four requests and execution-time model from Section 8.2.2, compute by hand how long r0's and r1's initial prefill and next decode step each take, then compute the duration of the round in which continuous batching admits r2. Explain the source of the longest output interval. With the new block length fixed at <span class="arithmatex">\(c=512\)</span>, compute the attention pair count for existing context lengths <span class="arithmatex">\(h=0\)</span> and <span class="arithmatex">\(h=7680\)</span> respectively. Finally, analyze the accompanying six-request replay recording, choosing a per-round token limit under each of the two goals "longest interval under 50 ms" and "admit later-arriving requests as soon as possible," and identify which time cost determines each choice.</p>
+</blockquote>
+<h2 id="83-allocation-reuse-and-release-of-the-kv-cache">8.3 Allocation, reuse, and release of the KV cache<a class="headerlink" href="#83-allocation-reuse-and-release-of-the-kv-cache" title="Permanent link">&para;</a></h2>
+<h3 id="831-reservation-fragmentation-and-paged-allocation">8.3.1 Reservation, fragmentation, and paged allocation<a class="headerlink" href="#831-reservation-fragmentation-and-paged-allocation" title="Permanent link">&para;</a></h3>
+<p>Section 8.1 reserved space for each request based on the maximum output length, guaranteeing it can keep generating. If a request ends early, the tail of its reserved space goes unused for good. An alternative is to expand memory incrementally as generation proceeds, but if the space must stay contiguous, adjacent regions occupied by other requests then require moving data or waiting.</p>
+<p>This kind of allocation can be likened to a loose-leaf binder: reading order is fixed by page numbers, but the pages need not sit in adjacent physical positions — one only needs to remember where each page is. As a sequence grows, a new page can be placed in any free slot with its location recorded, avoiding the need to shift the whole binder just to keep pages contiguous.</p>
+<p><strong>Paged allocation</strong> divides a sequence into fixed-size blocks. A <strong>logical block</strong> is numbered by position within the sequence, analogous to a page number; a <strong>physical block</strong> is the actual memory region holding KV; a per-request <strong>block table</strong> records which physical block each logical block maps to. When a sequence grows enough to need a new block, the engine allocates a physical block from the free pool and adds the mapping. Attention computation looks up the block table to find the KV at the needed position, so physical blocks can be scattered in memory. What's discussed here is block-based addressing of KV within memory; the swap-in and swap-out between levels of the memory hierarchy is left to Sections 8.3.4 and 8.4.3.</p>
+<p><img alt="Figure 8-10: Logical blocks 0, 1, 2 form the sequence in order; the block table points them to physical blocks 2, 0, 3 respectively. Physical block 1 is free. Attention restores logical order via the block table." src="images/figure-8-page-map.png" /></p>
+<p>Let each block hold the KV for <span class="arithmatex">\(p\)</span> tokens, and let the current length be <span class="arithmatex">\(L\)</span>; then <span class="arithmatex">\(\lceil L/p\rceil\)</span> blocks are needed. Only the last block has unused KV slots at its tail, wasting</p>
+<div class="arithmatex">\[
+p\left\lceil\frac{L}{p}\right\rceil-L,
+\]</div>
+<p>at most <span class="arithmatex">\(p-1\)</span> tokens' worth of KV space. The smaller the block, the lower this upper bound, but the more block-table entries and allocation operations there are. In 2023, researchers at Berkeley and other institutions proposed PagedAttention in vLLM, applying the idea of OS-style paged memory management to the KV cache, reducing the constraint that reserved space and memory fragmentation place on serving concurrency. PagedAttention brings this mapping into attention execution itself; FlashAttention, by contrast, organizes block-wise computation and intermediate results inside the operator — the two act on state allocation and on compute-memory access, respectively.</p>
+<p><strong>Worked example: how much reserved space can KV paged allocation save?</strong> Let A, B, C, D currently have lengths 9, 13, 5, 15, with each allowed a maximum of 16 tokens. With full-span reservation, the four requests together reserve KV space for 64 tokens; with <span class="arithmatex">\(p=4\)</span> paging, they are allocated 12, 16, 8, 16 respectively, for a combined KV space of 52 tokens. Of this, the KV actually stored still corresponds to 42 tokens, so unused capacity drops from 22 tokens to 10 tokens.</p>
+<p><img alt="Figure 8-11: Four requests contain 9, 13, 5, and 15 tokens respectively; each reserves KV space for 16 tokens, for a total allocation of KV space for 64 tokens. Blue is used; gray is reserved but unused." src="images/figure-8-5-pages.png" /></p>
+<p><img alt="Figure 8-12: Under KV allocation with 4 tokens per block, the four requests obtain capacity for 12, 16, 8, and 16 tokens respectively, totaling 52. Gray denotes the unused capacity at block tails, reduced from 22 tokens to 10 tokens." src="images/figure-8-pages-paged.png" /></p>
+<p>If A and B's first eight tokens are identical, they can further share two full blocks, reducing the total allocation to 44 tokens. Paging reduces reserved-but-unused space; sharing eliminates duplicated storage of context — the two save memory in different parts.</p>
+<p><img alt="Figure 8-13: A's and B's two shared prefix blocks are stored only once, with each block table pointing to them. A and B keep their own private tail blocks; the actual allocated KV capacity across the four requests drops further, to 44 tokens." src="images/figure-8-pages-shared.png" /></p>
+<h3 id="832-branch-sharing-copy-on-write-and-memory-release">8.3.2 Branch sharing, copy-on-write, and memory release<a class="headerlink" href="#832-branch-sharing-copy-on-write-and-memory-release" title="Permanent link">&para;</a></h3>
+<p>In the prefix-sharing figure, B and A reference the same two physical blocks. If A finishes first, those two blocks must still be kept for B; if B needs to modify their contents, it must not affect A. Implementing sharing thus requires determining when to release shared blocks, and how to prevent different requests from overwriting each other's data. Each entry in a block table that points to a physical block is called a <strong>reference</strong>; a shared block is referenced by multiple block tables. A <strong>reference count</strong> records how many users still need it. Each time a request acquires a reference, the count increases by one; when the request ends, it releases the reference. Only after the last reference is released can the block return to the free pool — and even then, one must confirm that accelerator operations no longer access it. In this way, the same shared context can serve multiple branches at once, and continue serving the remaining branches after one branch ends.</p>
+<p><img alt="Figure 8-14: After A ends, the reference count drops from 2 to 1, and B can still use the block; only after the last reference is released and the accelerator has finished using it can the block return to the free pool." src="images/figure-8-reference-release.png" /></p>
+<p>Writing to a shared tail block requires obtaining an independent copy. For example, suppose a block that can hold 4 tokens already has the KV of three shared tokens written into it, and two branches are about to write different tokens next. Writing directly into the original block would make the two branches contend for the block's fourth slot. <strong>Copy-on-write</strong> is the mechanism of obtaining a private copy before modifying shared content. Here the three tokens are copied first, and the two branches each append separately; the already-full read-only block continues to be shared. As branches grow, the common prefix stays as a single copy, while each branch stores only its own newly added suffix.</p>
+<p><img alt="Figure 8-15: A tail block holding 4 tokens per block already contains the shared a, b, c. The branches append x and y respectively, requiring different physical tail blocks; the already-full block continues to be shared." src="images/figure-8-copy-on-write.png" /></p>
+<p>In an existing four-branch experiment, the common prefix occupies 95 blocks, and each branch has an additional 9 private blocks. The four block tables together hold <span class="arithmatex">\(4(95+9)=416\)</span> references, but the actual number of physical blocks is only</p>
+<div class="arithmatex">\[
+95+4\times9=131.
+\]</div>
+<p>Independent storage would need 416 blocks; sharing cuts this by about 69%. This saving comes from deduplicating the common prefix; the 36 private tail blocks still grow with the number of branches.<sup id="fnref:pages"><a class="footnote-ref" href="#fn:pages">9</a></sup></p>
+<p>The serving system knows which tokens belong to the common prefix and which will be written independently after branching, so it can translate the model's reuse relationships directly into physical block sharing. The block table handles address mapping, the prefix relationship determines the sharing scope, and private copies are created only when a branch writes. What was originally reserved independently per whole request is thereby reallocated based on the state actually produced and reused.</p>
+<p><strong>Batch-wide KV capacity after common-prefix sharing.</strong> 16 long requests share the first 6144 input tokens, whose KV occupies 864 MiB in total. Each request's private portion contains <span class="arithmatex">\(8192-6144+255=2303\)</span> tokens. Allocating at 16 tokens per block requires room for 2304 tokens, i.e., 324 MiB. So the KV space needed once this group of requests finishes generating is</p>
+<div class="arithmatex">\[
+M_{\mathrm{KV}}=864+16\times324=6048\ \mathrm{MiB}.
+\]</div>
+<p>This group of requests originally needed <span class="arithmatex">\(16\times1188=19008\)</span> MiB; after sharing, it is about 5.91 GiB, which fits within the reserved 12 GiB of memory. In general, <span class="arithmatex">\(b\)</span> similar long requests occupy <span class="arithmatex">\(864+324b\)</span> MiB, so the capacity ceiling rises from 10 independent requests to 35 shared requests.</p>
+<p>Once a block is finished with, it must still be released correctly before being handed to a subsequent request. Releasing memory requires satisfying two conditions at once: no user still holds a reference, and already-submitted accelerator operations no longer access the block. After a user cancels a request, the scheduler stops scheduling new computation for it, waits for already-submitted operations to finish, and only then releases its private blocks. In one observation, the cancellation call returned in about 1.6 ms, while the corresponding 104 blocks were not released until about 31 ms. Later requests that use these blocks only after release will not overwrite data an old request is still reading.<sup id="fnref:cancel"><a class="footnote-ref" href="#fn:cancel">29</a></sup></p>
+<p><img alt="Figure 8-16: The cancel interface returning means the cancellation request has been received. Only after already-submitted accelerator operations complete are private blocks and their references released; the observed 1.6 ms and 31 ms correspond to different events." src="images/figure-8-cancel-lifetime.png" /></p>
+<p>Besides normal release when a request ends or is cancelled, the engine can also preempt a request when memory is short: pausing the request and releasing its KV, then later recomputing its state from the saved input and output. In the same experiment, one preemption occurred when using a 1 GiB KV pool, scheduling 1805 more tokens than normal execution; with a 2 GiB pool, this recomputation did not occur. Preemption temporarily frees memory for other requests, at the cost of repeated computation when execution resumes.<sup id="fnref2:pages"><a class="footnote-ref" href="#fn:pages">9</a></sup></p>
+<blockquote>
+<p><strong>Exercise 8-3 · Computation: how KV block size and prefix sharing affect capacity.</strong> Page four sequences of length 9, 13, 5, and 15 into blocks of 2, 4, and 8 tokens respectively; compute the number of unused KV slots in each sequence's tail block, and find the total unused KV slots and total block-table entries in each case. Then, using the chapter-opening example, compute the full capacity for 8, 16, and 32 long requests under both independent and shared conditions. Keeping each request's total length fixed, convert one originally private full block into part of the common prefix, and find how many fewer physical blocks <span class="arithmatex">\(b\)</span> requests need to allocate in total.</p>
+</blockquote>
+<h3 id="833-prefix-reuse-across-conversations-and-agent-tasks">8.3.3 Prefix reuse across conversations and agent tasks<a class="headerlink" href="#833-prefix-reuse-across-conversations-and-agent-tasks" title="Permanent link">&para;</a></h3>
+<p>Section 8.3.2 covered how concurrently running requests share physical blocks. This sharing can also span across the end of a request: the prefix KV left behind by an old request can save a later request from recomputing the same span of input. If a subsequent request's prefix is exactly identical, and uses the same model, positional-encoding rule, adapter, and state format, it can use the cached KV directly and continue prefill from the end of the prefix. The chapter-opening example's common prefix of 6144 tokens means that once the cache is hit, each long request only needs to process the remaining 2048 input tokens before beginning generation.</p>
+<p>This kind of reuse happens continuously along the prefix. Suppose two prompts share their first 100 tokens but differ at the 101st — even if the text afterward matches again, the context each depends on from the 101st token onward is already different. Placing a dynamic timestamp at the very start of the prompt causes the longer, shared tool definitions that follow to lose their reuse opportunity; placing the stable system prompt and tool definitions first, and appending this round's variation afterward, preserves a longer common prefix.<sup id="fnref:context"><a class="footnote-ref" href="#fn:context">11</a></sup></p>
+<p>A prefix tree expresses this structure directly: the path from root to a branch point is shared context, and the path from the branch point to a leaf is the private suffix. In Figure 8-17, the first four rounds of input first share 206 tokens, and the next three rounds continue extending along the same path. Edges in the tree are labeled by the number of new tokens, and leaves give the full input length.</p>
+<p><img alt="Figure 8-17: Compressed prefix tree of the first four rounds of input from a code agent. The root already has 206 common tokens; edges show the number added; leaves are the input round. A branch indicates that subsequent content differs." src="images/figure-8-6-prefix.png" /></p>
+<p><img alt="Figure 8-18: Blue is the prefix identical token-for-token to the previous round; orange is the rest of the input. This figure describes how reusable the input content is; actual cache hits still depend on whether the state has been retained." src="images/figure-8-prefix-lengths.png" /></p>
+<p>Appending content at the end each round preserves the existing common prefix, but the longer the context, the greater the KV footprint and the subsequent read volume.</p>
+<p><strong>Extension: how a hybrid attention model determines the recoverable prefix position.</strong> Full attention retains per-token KV, while recurrent models typically retain only the current state. Suppose the text matches up to the 10,752nd token, and recurrent snapshots are saved at the 4096th and 8192nd tokens respectively; the system restores from 8192 and then computes forward to 10,752, recomputing 2560 tokens. Adding more snapshots reduces the number of tokens to recompute, but requires storing more state. Taking KDA from Chapter 2 as an example, one implementation splits the within-layer tensor across eight cards (TP=8); in this case, each snapshot is about 53.6 MiB per card, so keeping 2 snapshots costs about 107 MiB, and keeping 32 snapshots costs about 1714 MiB. The denser the snapshots, the fewer tokens need recomputing on restore, but the more state must be retained.<sup id="fnref:hybrid"><a class="footnote-ref" href="#fn:hybrid">12</a></sup></p>
+<p><img alt="Figure 8-19: The text matches up to 10752, with the most recent state snapshot at 8192. After restoring, 2560 tokens must still be recomputed to reach the recurrent state at the matched endpoint. In the figure, 10752 and 8192 are token counts accumulated from the start of the sequence." src="images/figure-8-prefix-restore.png" /></p>
+<p><strong>Context organization can also actively change reuse opportunities.</strong> Suppose there is already an 8K-token context, and the next round appends a 1K tool result; at most the original 8K prefix can be reused, requiring only the new portion to be processed. If instead the leading instructions are rewritten, the following content — even if textually identical — can no longer be reused. Another approach is to summarize the history down to 2K and then append 1K. Replacing the original history with a summary means subsequent computation uses a shorter context, but incurs the extra cost of one summarization and rebuild pass. Organizing context therefore requires weighing memory footprint, recomputation time, and subsequent read volume together.</p>
+<p><img alt="Figure 8-20: Three ways of updating the same history. Blue denotes the reusable prefix, orange denotes input that must be reprocessed; the summary scheme first generates a summary, then rebuilds the cache. Lengths are illustrated in K tokens." src="images/figure-8-context-edits.png" /></p>
+<p>Prefix reuse on the model side also involves finer distinctions in state. DeepSeek V4.1 handles two kinds of local state separately when reusing prefixes. The CED structure introduced in Chapter 2 comprises a causal encoder and decoder, each with its own SWA local state: <strong>encoder SWA</strong> can be retained short-term in a host DRAM pool, to continue processing new input along the existing prefix in the next round; <strong>decoder SWA</strong> is used only for this round's subsequent generation, and the deployment described in the paper does not save it as part of the prefix cache. Global KV, by contrast, goes into a cache that can be reused over a longer term. Consequently, the 40 layers of SWA resident during generation and the prefix cache retained across rounds require separate capacity accounting.<sup id="fnref:v41-case"><a class="footnote-ref" href="#fn:v41-case">31</a></sup></p>
+<p>Whether these two kinds of state are hit determines how much prefix the encoder needs to restore when continuing computation in the next round. Suppose that once the tool returns, the tokens or input representations needed for restoration are still available, and the model version, token position index, and input remain consistent. When both the global KV and encoder SWA are hit, the encoder processes the appended input directly; when only the global KV is hit, the encoder replays up to the most recent 128 tokens of the cached prefix and executes them together with the uncached suffix. The replay segment rebuilds the encoder SWA and continues using the existing global KV; the newly added suffix produces new global KV and SWA. When the global KV is also not hit, the missing prefix is recomputed from scratch.</p>
+<p>After that, every prefill shares one common step: taking the encoder output for the last up-to-128 tokens of the complete prompt, passing it through the 20 decoder layers to approximately reconstruct the decoder SWA, preparing local state for the first decode step. So when the encoder cache is fully hit, encoder prefix restoration can be skipped, but the decoder still needs to perform the window replay.</p>
+<p>The state obtained from short-window replay is an approximately restored state, with error arising from earlier local dependencies being truncated. Although each layer accesses only the most recent 128 tokens, stacking multiple layers still lets local state indirectly depend on earlier input through the previous layer. Re-executing from the window boundary changes this portion of the historical information. Section 3.2.2 of the technical report therefore defines the state rebuilt by the encoder as an approximate state; this state in turn feeds into subsequent computation, making the global KV and SWA of the newly added suffix depend on the restoration starting point.</p>
+<p>The distinction between the two kinds of state ultimately shows up in cache capacity. Under the workload and caching policy adopted in the DeepSeek V4 technical report, SWA accounts for about half of the long-term cache. V4.1 moves this portion out of the persistent cache, and further compresses the global KV to about a quarter, so long-term storage volume becomes about <span class="arithmatex">\(1/2\times1/4=1/8\)</span> of the original. The short-term-retained encoder SWA sits in DRAM, while the decoder SWA stays resident on the accelerator only during that round's generation. Caching data by usage duration in tiers further lowers the long-term capacity requirement.</p>
+<p><img alt="Figure 8-21: The encoder's three prefix-restoration paths and the shared decoder replay. &quot;SWA&quot; in the cache-hit states refers specifically to the encoder; all paths still build the decoder SWA during prefill before generation begins. Arrows indicate execution order; box size does not represent duration." src="images/figure-8-v41-recovery.png" /></p>
+<h3 id="834-cache-admission-eviction-swap-out-and-recomputation">8.3.4 Cache Admission, Eviction, Swap-Out, and Recomputation<a class="headerlink" href="#834-cache-admission-eviction-swap-out-and-recomputation" title="Permanent link">&para;</a></h3>
+<p>Retaining a prefix after a request finishes exists to save recomputation the next time it is used. Let <span class="arithmatex">\(p_h\)</span> be the probability that the prefix is reused, <span class="arithmatex">\(T_r\)</span> the recomputation time, <span class="arithmatex">\(T_f\)</span> the time to fetch the state back from cache and prepare it, and <span class="arithmatex">\(T_m\)</span> the time required to maintain the cache. Each hit saves <span class="arithmatex">\(T_r-T_f\)</span>; multiplying by the hit probability and subtracting the maintenance time gives the expected net saving:</p>
+<div class="arithmatex">\[
+V_h=p_h(T_r-T_f)-T_m.
+\]</div>
+<p>Take the 6144-token common prefix from the long request at the start of the chapter as an example: its KV occupies 864 MiB (0.906 GB). Recomputing this prefix on an RTX PRO 6000 requires 96.5 TFLOP of matrix operations; at 62% of the BF16 peak reached by batch-1 prefill in Experiment 8-1 (Section 8.6.3), this takes about 307.9 ms. After swapping this prefix out to host memory, fetching it back over this card's PCIe Gen5 x16 link (64 GB/s per direction) takes about 14.2 ms;<sup id="fnref:pcie"><a class="footnote-ref" href="#fn:pcie">28</a></sup> taking the maintenance overhead as a single transfer writing back to the host during swap-out gives the same 14.2 ms. At a 50% hit probability, the average saving is 132.7 ms. For retaining the prefix to save time, we need</p>
+<div class="arithmatex">\[
+p_h&gt;\frac{T_m}{T_r-T_f}=\frac{14.2}{293.7}=4.8\%.
+\]</div>
+<p>If the host link is switched to PCIe Gen4 x16 (32 GB/s per direction), fetch and swap-out each rise to 28.3 ms, and each hit saves only 279.6 ms, raising the required minimum hit probability to 10.1%. Swap-out frees accelerator space, but only when the prefix is used frequently enough does it offset the time needed for fetching and maintenance.</p>
+<p>That a prefix is worth retaining does not mean it should be retained preferentially. When space is tight, a large prefix occupies room that could otherwise hold several smaller prefixes. Let A be the 6144-token prefix above; each B-class prefix contains 2048 tokens and occupies 288 MiB. Also computed with PCIe Gen5 fetch and swap-out, recomputation takes 94.7 ms, fetch and maintenance each take 4.7 ms, and with the same 50% hit probability, the expected saving is 40.3 ms. Figure 8-22 places both in a cache of the same size: keeping one A saves 132.7 ms, while keeping three B's saves a combined 120.9 ms. Recomputation time grows superlinearly with prefix length — prefill for 6144 tokens is 3.25 times that for 2048 tokens — so the same block of memory yields a higher return when used to retain a long prefix.</p>
+<p>This comparison can also be converted into a saving per unit of capacity: A saves about 0.154 ms per MiB, B about 0.140 ms. Sorting by this figure lets us compare prefixes of different sizes.</p>
+<p><img alt="Figure 8-22: Cache capacity is 864 MiB in both cases. A occupies 864 MiB with an expected net saving of 132.7 ms; the three B-class prefixes each occupy 288 MiB and save 40.3 ms, totaling 120.9 ms. Width in the figure represents capacity; times are computed from recomputation time on the RTX PRO 6000 and PCIe Gen5 fetch time, with hit probability at 50% in both cases." src="images/figure-8-7-cache-choice.png" /></p>
+<p>The choice above assumes one precondition: the prefix must remain until it is used again. When cache capacity is insufficient, even if the next round's input retains the same prefix, it may have to be recomputed because the state was already evicted. One replay of 12 rounds of agent input contains 19,556 input tokens. Under the same interfering requests, a 6 GiB cache pool hits 16,304 tokens, requiring only 3,252 to be reprocessed; a 1 GiB pool has no hits, requiring the entire input to be reprocessed. Increasing the wait time between adjacent rounds by 0.2 seconds did not change the hit count. In this comparison, increasing capacity retained the reusable prefix, whereas simply delaying the next round's request produced no comparable effect.<sup id="fnref:prefix"><a class="footnote-ref" href="#fn:prefix">13</a></sup></p>
+<p><strong>Cache admission</strong> determines whether a request's prefix is retained after the request finishes; the eviction policy determines which prefix to delete first when space runs short; the swap-out policy determines which storage tier to move state to; the recomputation policy determines how many input tokens to re-execute. For the 16 long requests at the start of the chapter, retaining a single shared prefix requires only 864 MiB, yet it saves both duplicate storage and prefill computation for subsequent requests.</p>
+<blockquote>
+<p><strong>Exercise 8-4 · Core · Analysis: which prefixes should a limited cache retain to save the most time?</strong> Available cache space is 864 MiB. Prefix A contains 6144 tokens and occupies 864 MiB; three mutually independent B-class prefixes each contain 2048 tokens and occupy 288 MiB. On an RTX PRO 6000, compute recomputation time from the matrix operation count at 62% of the BF16 peak of 503.8 TFLOP/s, compute fetch time at 64 GB/s per direction over PCIe Gen5 x16, and take maintenance time as one swap-out, equal to the fetch time; hit probability is 50% in both cases. Compare the expected net saving from retaining one A prefix versus three B-class prefixes. Keeping the B-class hit probability fixed, find the threshold hit probability for A below which three B's should be retained instead. Then switch the link to PCIe Gen4 x16 (32 GB/s per direction) and redo the comparison. For the data-analysis portion, read the accompanying 12-round input and cache replay, compute the common-prefix ratio and the actual hit ratio separately, and explain why other requests occupying cache space affects the actual hit ratio.</p>
+</blockquote>
+<h2 id="84-compression-and-offloading">8.4 Compression and Offloading<a class="headerlink" href="#84-compression-and-offloading" title="Permanent link">&para;</a></h2>
+<h3 id="841-memory-footprint-after-weight-quantization">8.4.1 Memory Footprint After Weight Quantization<a class="headerlink" href="#841-memory-footprint-after-weight-quantization" title="Permanent link">&para;</a></h3>
+<p>Prefix sharing saves space by removing duplicate KV. Even when requests share no common prefix, quantization can still reduce the storage required for weights and KV. Quantization typically encodes values in groups, storing a lower-bit-width encoded value per group along with metadata such as a scale; at computation time, these are used to recover an approximate value.</p>
+<p><strong>Q2_K</strong> is a grouped quantization format used in implementations of the GGML family of tensor computation libraries; its primary encoding uses 2 bits, with additional information stored for the scale within each group. In this format, each group has 256 values; the 2-bit encoding occupies <span class="arithmatex">\(256\times2/8=64\)</span> bytes, and metadata such as scale and minimum value occupies another 20 bytes. So each group needs 84 bytes total, averaging <span class="arithmatex">\(84\times8/256=2.625\)</span> bits per value. As bit width decreases, the share of total capacity occupied by metadata rises correspondingly — in this format, to about 24%.<sup id="fnref:gguf"><a class="footnote-ref" href="#fn:gguf">27</a></sup></p>
+<p><strong>Extended worked example: after loading quantized weights into memory, how long a context can still be accommodated?</strong> One Q2_K file variant of Qwen3-235B-A22B uses grouped quantization dominated by 2-bit encoding, mixed with several bit widths; the quantized encodings plus unquantized floating-point data total about 64.43 GiB, quantization metadata about 15.37 GiB, and with the file header and padding, the total is about 79.81 GiB. Another variant, <code>UD-Q2_K_XL</code>, is about 81.97 GiB. Taking the Apple M2 Max used in Experiment 8-7 as an example, its unified memory is nominally 96 GB (decimal); reserving 8 GiB for the system and workspace leaves about 81.41 GiB.<sup id="fnref:files"><a class="footnote-ref" href="#fn:files">14</a></sup></p>
+<p>After loading the first file into memory, 1.60 GiB remains; the second file already exceeds available space by about 0.56 GiB. This model's BF16 KV for an 8K context occupies about 1.47 GiB, so the first scheme can still handle one request, with about 0.13 GiB left over. If context length grows to 32K, the KV would need about 5.88 GiB, requiring either more memory or a different way of storing weights. The two files differ in size by only 2.16 GiB, yet that is already enough to determine whether a request can be accommodated.</p>
+<p>In a unified-memory system, the CPU and GPU share physical memory. After a weight file is mapped into the address space, its pages need to reside in physical memory only when the corresponding data is accessed. If the total volume of data accessed during execution exceeds memory capacity, pages are repeatedly swapped in. So to address insufficient capacity, we can either reduce the number of bytes the data itself occupies, or retain only the data currently needed and bring the rest in just before use. The next section first computes the benefit of KV compression, then analyzes the time required to bring in weights.</p>
+<h3 id="842-kv-compression-and-read-cost">8.4.2 KV Compression and Read Cost<a class="headerlink" href="#842-kv-compression-and-read-cost" title="Permanent link">&para;</a></h3>
+<p>Applying the same grouping method to KV lets us compute how much extra capacity the saved space can accommodate for requests. Weights are shared across many requests, but KV keeps growing continuously with input and output. For this chapter's model, the BF16 KV for one 8K context is 1152 MiB. Quantization changes the bit width of each value, while context representation changes how many values must be stored per token: Section 9.2.2 places GQA and the compact MLA state for the same 8K context side by side, and the latter is only 549 MiB. Every 32 BF16 values occupy 64 bytes. <strong>q8_0</strong> is an 8-bit quantization format that shares one scale across every 32 values. Switching to q8_0 stores 32 bytes of codes and 2 bytes of scale, becoming <span class="arithmatex">\(34/64\)</span> of the original; <strong>q4_0</strong> uses the same grouping but lowers the code width to 4 bits, storing 16 bytes of codes and 2 bytes of scale, becoming <span class="arithmatex">\(18/64\)</span>.</p>
+<p>So the capacity required for the same context is</p>
+<div class="arithmatex">\[
+M_{q8}=1152\times\frac{34}{64}=612\ \mathrm{MiB},
+\qquad
+M_{q4}=1152\times\frac{18}{64}=324\ \mathrm{MiB}.
+\]</div>
+<p>Compared with BF16, q8_0 saves 540 MiB, q4_0 saves 828 MiB. Including the scale, the two formats average 8.5 bits and 4.5 bits per value respectively. Since each group must store a scale, the metadata also grows along with KV length.<sup id="fnref:kv-format"><a class="footnote-ref" href="#fn:kv-format">15</a></sup></p>
+<p>Figure 8-23 restores this step to a byte-level layout. Each row stores the same 32 values: the encoded portion shortens, but the scale remains. So the total lengths for q8_0 and q4_0 are 34 and 18 bytes respectively, not the 32 and 16 bytes suggested by the encoding bit width alone.</p>
+<p><img alt="Figure 8-23: Space required by BF16, q8_0, and q4_0 to store the same group of 32 values. Bars are drawn proportional to byte count; orange represents the 2-byte scale per group. Multiplying the total length per group by the number of groups gives the KV capacity for an entire context." src="images/figure-8-8-kv-format.png" /></p>
+<p>After the long request from the opening worked example finishes generating, the block-allocated BF16 KV occupies 1188 MiB in total. Switching to q8_0 with the same layout requires <span class="arithmatex">\(1188\times34/64=631.125\)</span> MiB; for 16 independent long requests, this totals about 9.86 GiB, which fits within the reserved 12 GiB of memory. This shows that sharing and compression save space through different means: sharing removes duplicate prefixes, while compression reduces the number of bytes each value occupies.</p>
+<p>When computing attention with compressed KV, the read volume decreases, but format conversion takes extra time. Let <span class="arithmatex">\(\Delta D\)</span> bytes fewer be read per computation, <span class="arithmatex">\(\beta\)</span> be the effective bandwidth, and <span class="arithmatex">\(T_c\)</span> be the additional serial execution time from conversion; the net time saving is then</p>
+<div class="arithmatex">\[
+\Delta T=\frac{\Delta D}{\beta}-T_c.
+\]</div>
+<p>For example, converting an 8K context on an RTX PRO 6000 from BF16 to q8_0 reads 540 MiB fewer. At an effective bandwidth of about 1.16 TB/s under read-bound conditions (Section 8.6.3, 65% of the 1792 GB/s peak), this saves about 0.487 ms. If conversion adds 0.2 ms, the net saving is about 0.287 ms; if conversion adds 0.8 ms, it instead adds about 0.313 ms. Whether the same compression format speeds up execution depends on whether the conversion time is less than the read time saved.</p>
+<p>The longer the context, the more time is saved by reading less. One early evaluation running Llama-3.1-8B on H100 fit output intervals for BF16 and FP8 as <span class="arithmatex">\(6.44+4.37\times10^{-5}L\)</span> and <span class="arithmatex">\(6.58+2.37\times10^{-5}L\)</span> ms respectively. FP8's fixed term is 0.14 ms larger, while its growth term per context token is <span class="arithmatex">\(2\times10^{-5}\)</span> ms smaller. Dividing the difference in fixed overhead by the difference in per-context-token cost gives a crossover point of about 7000 tokens; at 2K, BF16 is about 6.53 ms and FP8 about 6.63 ms, while at 16K they are about 7.16 and 6.97 ms respectively. At longer contexts, the time saved by reading less exceeds the added fixed overhead.<sup id="fnref2:kv-format"><a class="footnote-ref" href="#fn:kv-format">15</a></sup></p>
+<p>The opening of this section noted that context representation determines how many values must be stored per token; the local and global state categories in hybrid attention models can also be compared by capacity in this way. Under an 8K-context baseline, add up the capacity of the global history and the effective SWA. DeepSeek V4.1's two figures are 6.953 MiB and 2.578 MiB, totaling 9.531 MiB; V4's corresponding two items total 30.521 MiB, about 3.20 times V4.1's total. The local window occupies fixed space, so the combined capacity gap at short contexts is smaller than the 3.95-fold gap in global history alone.</p>
+<h3 id="843-weight-offloading-prefetch-and-per-step-movement">8.4.3 Weight Offloading, Prefetch, and Per-Step Movement<a class="headerlink" href="#843-weight-offloading-prefetch-and-per-step-movement" title="Permanent link">&para;</a></h3>
+<p>Compression reduces the size of the data itself. Another way to expand capacity is to let data reside on the GPU in rotation: bringing it in only when needed for computation, and reusing that space once done. Weight offloading moves some weights that would otherwise stay resident on the GPU to host memory, and copies them back to the GPU just before computing the corresponding layer. The accelerator memory this frees up can be used for KV, but every forward computation must re-copy these weights. As a request generates output step by step, this movement repeats with every round of decode.</p>
+<p>The three BF16 matrices of one FFN layer in Qwen3-8B total 288 MiB. Offloading one layer out of every four across 36 layers offloads nine FFN weight sets, freeing 2592 MiB. The GPU must also reserve buffer space for prefetch (copying a layer's weights to the GPU ahead of computing that layer): one buffer set occupies 288 MiB, giving a net saving of 2304 MiB; two sets occupy 576 MiB, giving a net saving of 2016 MiB. Taking the 1152 MiB KV of one 8K input as the unit, the former can accommodate two more such requests, the latter only one. If we instead reserve the 1188 MiB needed once generation finishes, both schemes can only accommodate one additional complete request.<sup id="fnref:offload"><a class="footnote-ref" href="#fn:offload">16</a></sup></p>
+<p><img alt="Figure 8-24: Offloading nine FFN sets frees up 2592 MiB total. Orange is the prefetch buffer kept on the accelerator; green is the net space that can be reallocated. One buffer set nets 2304 MiB; two sets net 2016 MiB." src="images/figure-8-9-offload.png" /></p>
+<p>Prefetch must obey two ordering relationships: computation can only read the weights once the copy has finished, and the buffer can only be written with the next set once computation no longer needs the current one. With one buffer set, the same buffer is used in turn for copying, computation, and the next copy; with two sets, one layer's computation can proceed while the next layer's weights are copied into the other buffer. This overlaps copying with computation, but the buffers themselves also use more memory.</p>
+<p>First, compute the link cost of this movement. This card connects to the host over PCIe Gen5 x16, nominally 64 GB/s per direction. Each round must bring in 2592 MiB, i.e., 2.72 GB, requiring</p>
+<div class="arithmatex">\[
+T_{\mathrm{copy}}\ge\frac{2.72\ \mathrm{GB}}{64\ \mathrm{GB/s}}\approx42.5\ \mathrm{ms}.
+\]</div>
+<p>This already exceeds the 26.26 ms of one batch-1 decode round. Even if all other computation can fully overlap with the copy, each round still requires at least about 42.5 ms. If each round generates one token for each of four requests, total output throughput is at most about <span class="arithmatex">\(4/0.0425\approx94\)</span> tokens/s, and each request's output interval is also at least about 42.5 ms. Generating 256 output tokens requires 255 subsequent forward computations, and weight movement alone would take about 10.8 seconds. So offloading these weights over PCIe cannot meet a 7-second completion deadline.</p>
+<p>There are also much faster links between CPU and GPU. GH200 connects the Grace CPU and Hopper GPU with NVLink-C2C, at 450 GB/s per direction. The same 2.72 GB now takes at least about 6.0 ms per round, totaling about 1.54 seconds over 255 rounds. When each round's copy is shorter than one round of decode computation, prefetch can fully mask the copy behind computation.</p>
+<p><img alt="Figure 8-25: The per-round copy volume stays at 2592 MiB (2.72 GB). Over PCIe Gen5 x16 (64 GB/s per direction), this takes at least about 42.5 ms; over GH200's NVLink-C2C (450 GB/s per direction), it takes at least about 6.0 ms." src="images/figure-8-offload-copy.png" /></p>
+<p>What matters here is the ratio between the data volume moved per round and the effective bandwidth. Prefetch lets movement and computation happen concurrently, but the number of bytes to be transferred each round remains the same.</p>
+<p>If weights are compressed before being moved, decompression time must also be added. Let <span class="arithmatex">\(S\)</span> bytes be the original data, <span class="arithmatex">\(rS\)</span> bytes the compressed size, <span class="arithmatex">\(B_{\mathrm{link}}\)</span> the link bandwidth, and <span class="arithmatex">\(R_{\mathrm{dec}}\)</span> the decompression throughput (measured in original output bytes). Transferring fully then decompressing takes <span class="arithmatex">\(rS/B_{\mathrm{link}}+S/R_{\mathrm{dec}}\)</span>, whereas direct transfer takes <span class="arithmatex">\(S/B_{\mathrm{link}}\)</span>; so compressing before moving is only faster when</p>
+<div class="arithmatex">\[
+R_{\mathrm{dec}}&gt;\frac{B_{\mathrm{link}}}{1-r}
+\]</div>
+<p>Compressing 96 MiB of weights to a quarter of their size, direct transfer over PCIe Gen5 x16 takes about 1.57 ms, while transferring the compressed data takes only 0.39 ms; to retain this 1.18 ms saving, the decompressor must output more than 85.3 GB of original data per second. The faster the link, the higher the required decompression throughput.<sup id="fnref:codec"><a class="footnote-ref" href="#fn:codec">17</a></sup></p>
+<p>In the offloading discussed in this section, model computation is still always executed by the GPU, and host memory is responsible for holding weights not currently in use. Section 9.3 will further shift the location of computation itself: once expert weights already reside in host memory, the CPU can compute directly, sending only the smaller activations back to the GPU — at which point we need to compare each expert's input row count, CPU computation time, and weight transfer time.</p>
+<blockquote>
+<p><strong>Exercise 8-5 · Computation: capacity saved by weight offloading versus added movement.</strong> Suppose nine FFN weight sets are offloaded, each occupying 288 MiB. Suppose each prefetch buffer set can hold one FFN weight set; compute the net accelerator memory saved when using one versus two buffer sets, and find how many 1152 MiB input states, or how many 1188 MiB complete request states, this space can additionally accommodate. Then, taking PCIe Gen5 x16's 64 GB/s per direction and GH200 NVLink-C2C's 450 GB/s per direction respectively, find the lower bound on per-step copy time and on the cumulative time for 255 steps of copying. If the total time budget for all copying is 1 second, find the minimum required unidirectional bandwidth.</p>
+</blockquote>
+<h3 id="844-choosing-capacity-and-speed-under-a-quality-constraint">8.4.4 Choosing Capacity and Speed Under a Quality Constraint<a class="headerlink" href="#844-choosing-capacity-and-speed-under-a-quality-constraint" title="Permanent link">&para;</a></h3>
+<p>Section 8.4.2 computed the space saved by compression and the added conversion time, but did not yet answer whether the answer remains the same after changing the numerical format. Here, the execution backend refers to the kernel implementation that actually performs the attention computation. Compressing KV changes the stored values; switching execution backends may also simultaneously change the computed format of Q, the conversion process, and the numerical precision of the reduction operations. Comparing the storage format and computation precision of tensors item by item lets us pinpoint the source of output differences.</p>
+<p>The following uses eight fixed tasks for this item-by-item comparison; three figures arrange these tasks in the same order. The eight tasks come from documents of two lengths: each document contains either 128 or 512 six-digit records, with four independent documents at each length, labeled in the experiment logs as n128-r0 through n128-r3 and n512-r0 through n512-r3, and numbered tasks 1 through 8 in the figures in that order. Each task is run twice at each of two concurrency levels, comparing the effect of different numerical formats using the same task.</p>
+<p>One set of Qwen3-8B experiments kept BF16 weights fixed and compared three attention computation methods. Across 32 natural-generation runs, using BF16 KV answered 28 correctly; switching to the original FP8 implementation answered 26 correctly; keeping FP8 KV but restoring Q to BF16 again answered 28 correctly. This last configuration changed only the precision of Q, and the results still changed — showing that KV's storage format and Q's computation precision must be considered separately.<sup id="fnref:quality"><a class="footnote-ref" href="#fn:quality">19</a></sup></p>
+<p><img alt="Figure 8-26: BF16 KV baseline. Each row is one fixed task; the four columns are two natural-generation runs each at concurrency 1 and 4. Green circles mark correct answers, orange crosses mark errors, totaling 28/32 correct." src="images/figure-8-10-kv-quality.png" /></p>
+<p><img alt="Figure 8-27: Same tasks and run order; the original FP8 implementation gets 26/32 correct overall. This comparison includes the effect of implementation choice on Q's precision. Circles mark correct answers, crosses mark errors; each row corresponds to the same question, and columns represent concurrency level and repeat run index." src="images/figure-8-kv-quality-1.png" /></p>
+<p>Figure 8-28 further restores only the query Q to BF16 precision, keeping KV in FP8. Comparing the same column across the three figures reveals which specific questions' results changed, not just the total correct count.</p>
+<p><img alt="Figure 8-28: Keeping query Q at BF16 while KV stays in FP8, totaling 28/32 correct; the questions answered incorrectly differ from the BF16 baseline. All three figures use the same tasks and column order, with model weights in BF16 throughout. Circles mark correct answers, crosses mark errors; each row corresponds to the same question, and columns represent concurrency level and repeat run index." src="images/figure-8-kv-quality-2.png" /></p>
+<p>In the figure, task 5 (n512-r0 in the experiment log, the first long document with 512 records) is wrong all four times under BF16 KV, but correct all four times under "FP8 KV + BF16 Q"; task 6 (n512-r1) shows exactly the opposite pattern. Both configurations answer 28 correctly overall, but different tasks are the ones answered wrong. Lining up results for the same task lets us see exactly where the differences occur, and whether they hold consistently across repeated runs.</p>
+<p>Errors also add to the time needed to complete a task. After a first answer fails and is retried, the total time to reach a correct answer must include the first generation, checking the answer, and generating again. In one recorded experiment, two retries corrected the error but added about 2.0 seconds of extra generation time and 92 tokens. If the first answer is faster but also more error-prone, completing the whole task may actually take longer.<sup id="fnref:retry"><a class="footnote-ref" href="#fn:retry">20</a></sup></p>
+<p>Compare the two KV capacity schemes discussed earlier: 16 independent long requests occupy about 9.86 GiB using q8_0, versus about 5.91 GiB with a shared BF16 prefix. To judge which scheme is more suitable, we must also factor conversion, generation, and retry time into each request's total duration. The comprehensive worked example in Section 8.6 will complete this step.</p>
+<blockquote>
+<p><strong>Exercise 8-6 · Data analysis: how KV compression affects capacity, answer correctness, and retry cost.</strong> Assuming each group contains 32 values with an additional 2 bytes for the scale, recompute the KV capacity for an 8K input and a complete long request under q8_0 and q4_0 formats. Then read the accompanying results for three KV/Q precision configurations item by item, and list which questions changed correctness between BF16 KV and "FP8 KV + BF16 Q". Finally, read the retry records, sum the first-answer and retry times for each successful task, and compare this with the result obtained by counting only the time of the final successful generation.</p>
+</blockquote>
+<h2 id="85-speculative-decoding">8.5 Speculative Decoding<a class="headerlink" href="#85-speculative-decoding" title="Permanent link">&para;</a></h2>
+<h3 id="851-drafts-verification-rollback-and-correctness">8.5.1 Drafts, verification, rollback, and correctness<a class="headerlink" href="#851-drafts-verification-rollback-and-correctness" title="Permanent link">&para;</a></h3>
+<p>The previous two sections mainly changed how data is stored and read, but each request still generated one round at a time. If a single target-model computation could determine multiple outputs at once, generating 256 tokens would no longer require the same number of rounds. In ordinary decode, the target model produces one token per forward pass. Section 8.2 merged different requests into one computation so that a single weight read serves more rows. Speculative decoding takes a different approach: first generate a <strong>draft sequence</strong> for the same request, then have the target model verify several of its tokens simultaneously. If the target model accepts multiple draft tokens, a single computation determines multiple outputs.</p>
+<p>Start with <strong>greedy generation</strong>: at each step, choose the token to which the target model assigns the highest probability. Suppose the draft sequence contains four tokens, and the target model computes, for each token position, what the output should have been. If the first two match the draft but the third does not, the final result keeps the first two draft tokens and outputs the target model's chosen token at the third position. The fourth draft token, generated after the incorrect third token, is discarded along with it. The next round continues generation from the corrected sequence. If all four draft tokens match, the target model can usually generate one more token after them.</p>
+<p>Figure 8-29 shows the handling order when the third token diverges. Although the target model has already computed verification results for the tokens that follow, the fourth token depends on the incorrect third draft token and cannot be kept. One verification pass ultimately keeps two matching draft tokens and one corrected token, for three outputs in total.</p>
+<p><img alt="Figure 8-29: The process of greedy verification. a, b, c, d, x denote tokens; the target model selects x at the third position, which differs from draft token c. The fourth token and its subsequent verification results are discarded; the next round continues generation from a, b, x. The boxes represent token positions in the sequence, not execution time." src="images/figure-8-11-verification.png" /></p>
+<p>For random sampling, the final output must still follow the target model's probability distribution. Let the target distribution be <span class="arithmatex">\(p(x)\)</span> and the draft distribution be <span class="arithmatex">\(q(x)\)</span>. First sample a draft token <span class="arithmatex">\(x\)</span> from <span class="arithmatex">\(q\)</span>, then accept it with the following probability:</p>
+<div class="arithmatex">\[
+\alpha(x)=\min\left(1,\frac{p(x)}{q(x)}\right).
+\]</div>
+<p>The probability of sampling <span class="arithmatex">\(x\)</span> and accepting it directly is <span class="arithmatex">\(q(x)\alpha(x)=\min(p(x),q(x))\)</span>. To reach the target probability <span class="arithmatex">\(p(x)\)</span>, there remains a shortfall of <span class="arithmatex">\([p(x)-q(x)]_+\)</span>. Here <span class="arithmatex">\([z]_+=\max(z,0)\)</span> keeps only the positive difference. So after rejecting the draft token, this positive residual is normalized and resampled from the resulting distribution. Combining direct acceptance with rejection-and-resampling, the final probability of outputting <span class="arithmatex">\(x\)</span> is exactly <span class="arithmatex">\(p(x)\)</span>.<sup id="fnref:spec"><a class="footnote-ref" href="#fn:spec">21</a></sup></p>
+<p>Illustrate this with a toy example using only two symbols, A and B. The target distribution is <span class="arithmatex">\(p(A)=1/4\)</span>, <span class="arithmatex">\(p(B)=3/4\)</span>. If the draft always generates A, accept A with probability <span class="arithmatex">\(1/4\)</span>; the remaining <span class="arithmatex">\(3/4\)</span> of the time, reject A and output B instead. If the draft always generates B, accept B with probability <span class="arithmatex">\(3/4\)</span>; otherwise output A instead. Both methods ultimately yield the target distribution, but the draft's acceptance probability differs, and so does the resulting execution efficiency.</p>
+<p><img alt="Figure 8-30: The probability of accepting A is 1/4; the probability of outputting B after rejection is 3/4. The two paths together yield the target distribution." src="images/figure-8-sample-A.png" /></p>
+<p><img alt="Figure 8-31: The probability of accepting B is 3/4; the probability of outputting A after rejection is 1/4. The target distribution is the same, but the draft's acceptance probability is higher." src="images/figure-8-sample-B.png" /></p>
+<p>After verification, the effective KV length is adjusted to the confirmed output position, and the KV corresponding to discarded draft tokens no longer participates in subsequent computation. The pager updates block references according to the confirmed output length, and the sampler and grammar checker (the component that restricts eligible tokens to a specified output format) are also restored to the corresponding state. The next round then continues computation from the corrected sequence.</p>
+<h3 id="852-per-round-latency-and-output-count">8.5.2 Per-round latency and output count<a class="headerlink" href="#852-per-round-latency-and-output-count" title="Permanent link">&para;</a></h3>
+<p>Speculative decoding changes both the per-round latency and the number of tokens ultimately output per round. Let round <span class="arithmatex">\(r\)</span> take time <span class="arithmatex">\(T_r\)</span> and output <span class="arithmatex">\(N_r\)</span> tokens; then, across multiple consecutive rounds, the average latency per output token is</p>
+<div class="arithmatex">\[
+\bar t_{\mathrm{spec}}=\frac{\sum_r T_r}{\sum_r N_r}.
+\]</div>
+<p>For example, if two rounds each take 1.5 ms and output 1 and 5 tokens respectively, the total is 3 ms for 6 tokens, giving an average of 0.5 ms per token. If instead one first computes the per-round average and then takes an unweighted average of 1.5 and 0.3 ms/token, the result is 0.9 ms. This is equivalent to giving the round that outputs only one token the same weight as the round that outputs five. Only dividing the total time by the total token count gives the correct average latency per token.</p>
+<p><strong>Worked example: how does the draft acceptance rate determine the average per-round output count?</strong> Continue with the two-symbol target distribution, assuming independence across token positions. Each round the draft generates four copies of the same symbol; the final output also includes the corrected token upon rejection, or an extra token if all are accepted. Let <span class="arithmatex">\(a\)</span> be the acceptance probability at the current position, given that all preceding draft tokens have been accepted. Each round outputs at least one token; outputting a second requires accepting the first draft token, with probability <span class="arithmatex">\(a\)</span>; outputting a third requires accepting the first two, with probability <span class="arithmatex">\(a^2\)</span>. Summing these terms, the average per-round output count is</p>
+<div class="arithmatex">\[
+\mathbb E[N]=1+a+a^2+a^3+a^4.
+\]</div>
+<p>Each term above represents the probability of "outputting at least this many tokens" in the end. When the draft is AAAA, <span class="arithmatex">\(a=1/4\)</span>, and the average per-round output is about 1.33 tokens; when the draft is BBBB, <span class="arithmatex">\(a=3/4\)</span>, and the average output is about 3.05. On the RTX PRO 6000, at batch 1 with a 2K context, ordinary decode takes 26.26 ms per round (Experiment 8-1). When verifying 5 positions, the weights and KV read are the same as for ordinary decode; the extra matrix computation for the additional 4 rows amounts to about 65 GFLOP, which at 62% of BF16 peak takes only about 0.2 ms, so a verification round is still counted as 26.26 ms. Experiment 8-5 observes the same phenomenon: DFlash (a draft network that generates an entire draft segment in parallel in a single forward pass) generates 7 draft tokens per round and verifies 8 positions, with a median latency of 15.2 ms — comparable to the 16.9 ms of one ordinary decode step under the same configuration. Adding the 0.1 ms for querying the draft, one round totals 26.36 ms, and the two draft configurations correspond to average per-token latencies of about 19.8 and 8.64 ms respectively — both faster than the 26.26 ms/token of ordinary decode. Verification barely adds to the round's duration, and even when most draft tokens are rejected, each round still yields at least one token, so even the low-acceptance-rate AAAA still achieves a speedup.<sup id="fnref:history"><a class="footnote-ref" href="#fn:history">22</a></sup></p>
+<p>The time saved by accepting more draft tokens can also be offset by the query overhead. To beat ordinary decode, the total time of one round must be less than the average output count times 26.26 ms. After subtracting the 26.26 ms required for verification, AAAA leaves about 8.7 ms for the draft query, while BBBB leaves about 53.9 ms. Figure 8-32 plots these two crossover points against the query cost axis.</p>
+<p><img alt="Figure 8-32: Two-symbol target distribution, four draft tokens generated per round. Each round's verification takes 26.26 ms, with query time varying along the horizontal axis; the latency per output token is the round's total time divided by the average output count. Ordinary decode is 26.26 ms/token (RTX PRO 6000, batch 1, 2K context). There is no early stopping, and extra tokens are counted in the output total. The marked points show the case where query latency is 0.1 ms; AAAA and BBBB cross ordinary execution at query times of about 8.7 and 53.9 ms respectively." src="images/figure-8-12-speculation.png" /></p>
+<p>The preparation work before using a draft must also be counted in the total time. If building a context index takes 2 seconds, and the BBBB draft saves about <span class="arithmatex">\(26.26-8.64\approx17.6\)</span> ms per output token, then generating about 114 tokens would offset this 2-second overhead. A request outputting 256 tokens with ordinary decode takes about 6.72 seconds; building the index first for 2 seconds and then using the BBBB draft is expected to take about 4.22 seconds. If the index can be built in advance and shared across multiple requests, this overhead can be amortized over even more output.</p>
+<h3 id="853-draft-sources-and-serial-versus-parallel-generation-methods">8.5.3 Draft sources and serial versus parallel generation methods<a class="headerlink" href="#853-draft-sources-and-serial-versus-parallel-generation-methods" title="Permanent link">&para;</a></h3>
+<p>How much time four draft tokens save depends both on how many pass verification and on how long it takes to generate that draft segment. Real systems can look up drafts from the context, or invoke an additional network to generate drafts; the two choices bring different preparation times and memory footprints.</p>
+<p>Context lookup finds repeated spans from the input or existing responses, with the main overhead being matching and index construction. An independent small model generating drafts step by step requires additional storage for its own weights and KV. EAGLE-style methods feed the target model's intermediate representations into a smaller prediction network; DFlash-style methods generate multiple draft tokens in parallel. An MTP head built into the model uses jointly trained prediction ability to generate drafts.<sup id="fnref2:spec"><a class="footnote-ref" href="#fn:spec">21</a></sup></p>
+<p>Dividing each round into four stages — draft generation, verification preparation, target verification, and output determination — allows these methods to be compared term by term. Take the DFlash draft network from Experiment 8-5 as an example; its weights are about 1.95 GiB (2.10 GB). At batch 1's effective bandwidth (26.26 ms to read 15.44 GB, about 588 GB/s), one forward pass of this network takes about 3.57 ms. Generating four draft tokens one at a time would require four forward passes, totaling 14.28 ms; generating the entire draft segment in parallel, as DFlash does, requires only one forward pass, about 3.57 ms. Target verification requires 26.26 ms in either case. If each round ultimately outputs an average of 3 tokens, the serial approach costs about <span class="arithmatex">\((14.28+26.26)/3\approx13.5\)</span> ms per token, while the parallel approach costs about <span class="arithmatex">\((3.57+26.26)/3\approx9.9\)</span> ms per token. Here, the speedup comes from the reduced draft generation time.</p>
+<p>Now suppose the parallel draft's acceptance rate is lower, and the average output count drops to 2. The average latency per output token rises to <span class="arithmatex">\((3.57+26.26)/2\approx14.9\)</span> ms — slower than the serial approach. The faster draft generation saved 10.7 ms, but with fewer outputs per round, the time amortized per output token increases, and the overall request becomes slower.</p>
+<h3 id="854-dynamic-selection-of-draft-length-and-concurrency-contention">8.5.4 Dynamic selection of draft length and concurrency contention<a class="headerlink" href="#854-dynamic-selection-of-draft-length-and-concurrency-contention" title="Permanent link">&para;</a></h3>
+<p>Once the draft source is fixed, one must also decide how long each round's draft should be. Longer drafts raise the upper bound on how many tokens a round can output. But only if the preceding tokens are all accepted do the later ones have a chance to make it into the final output. Let <span class="arithmatex">\(a_j\)</span> be the conditional acceptance probability of the <span class="arithmatex">\(j\)</span>-th token given that all preceding draft tokens have been accepted; then the average output count for a draft of length <span class="arithmatex">\(m\)</span> is</p>
+<div class="arithmatex">\[
+\mathbb E[N_m]=1+\sum_{j=1}^{m}\prod_{i=1}^{j}a_i.
+\]</div>
+<p>Increasing the draft length from <span class="arithmatex">\(m-1\)</span> to <span class="arithmatex">\(m\)</span> increases the average output by <span class="arithmatex">\(\Delta N=\prod_{i=1}^{m}a_i\)</span> tokens. Suppose this adds <span class="arithmatex">\(\Delta T\)</span> time; originally the round took time <span class="arithmatex">\(T\)</span> and output an average of <span class="arithmatex">\(N\)</span> tokens, giving an average latency per output token of <span class="arithmatex">\(T/N\)</span>. For the increased draft length to yield a shorter average latency per output token, we need <span class="arithmatex">\((T+\Delta T)/(N+\Delta N)&lt;T/N\)</span>, which rearranges to</p>
+<div class="arithmatex">\[
+\frac{\Delta T}{\Delta N}&lt;\frac{T}{N}.
+\]</div>
+<p>In other words, the average time paid for the newly added output must be lower than the original average latency per token. Since acceptance probabilities are multiplied successively, later draft tokens have progressively lower survival probability, making it harder for them to yield sufficient time benefit.</p>
+<p>The preset execution shape also affects the added time <span class="arithmatex">\(\Delta T\)</span>. If verifying four or five tokens both pad each token's feature vector to an eight-row matrix and use a pre-prepared eight-row computation graph, adding one more token requires relatively little extra computation; but if the number of tokens to verify goes from eight to nine, requiring padding to a sixteen-row matrix and a switch to the corresponding computation graph, the computation jumps abruptly. The number of concurrent requests also affects the benefit of speculative decoding: under low load, verifying multiple rows can use otherwise idle compute; under high load, ordinary batching already shares weights efficiently, and draft generation and verification must additionally contend with other requests for accelerator and memory resources.</p>
+<p>A set of measurements compares different draft lengths. K7 and K15 denote configurations generating 7 and 15 draft tokens per round, respectively. For Qwen3-8B/DFlash's short-extraction task at concurrency 1, the median full latency for ordinary decode, K7, and K15 is about 90.0, 30.6, and 29.4 ms. Switching from ordinary execution to K7 saves about 59 ms, while going from K7 to K15 saves only about 1.2 ms more. The per-round logs also show rounds where both block lengths accept only a single draft token: K7 discards six draft tokens, K15 discards fourteen, and the final output length is the same. The larger verification block increased the computation without producing more output in that round.<sup id="fnref:spec-measure"><a class="footnote-ref" href="#fn:spec-measure">23</a></sup></p>
+<p>Therefore, when dynamically adjusting draft length, the condition above can be applied: generate longer drafts for requests with high acceptance probability and low added time per verification position, and shorten the block length for requests that often fail verification at the first few positions, or that would need to switch to a larger execution shape. When determining draft length, one must also leave room for the KV of both the target model and the draft model, and then follow the method in Section 8.3 to decide how many requests to admit.</p>
+<blockquote>
+<p><strong>Exercise 8-7 · Derivation: what draft length minimizes the average latency per output token?</strong> Fix the draft acceptance probability at <span class="arithmatex">\(a=3/4\)</span>, and compute the average per-round output token count for draft block lengths of 1, 2, 4, and 8. Using the RTX PRO 6000 data from Section 8.5.3, rounded to one decimal place: one verification round takes 26.3 ms, and the draft network generates tokens one at a time at 3.6 ms per draft token, i.e., <span class="arithmatex">\(T_m=26.3+3.6m\)</span> ms; find the average latency per output token for each block length. Then suppose the draft executes in groups of 4 positions, with partial groups still timed as full groups, i.e., <span class="arithmatex">\(T_m=26.3+3.6\times4\lceil m/4\rceil\)</span> ms; compare block lengths 4 and 5, and use the marginal condition to explain the choice.</p>
+</blockquote>
+<h2 id="86-performance-and-configuration-choices-under-request-load">8.6 Performance and Configuration Choices Under Request Load<a class="headerlink" href="#86-performance-and-configuration-choices-under-request-load" title="Permanent link">&para;</a></h2>
+<h3 id="861-arrival-rate-queueing-admission-and-cancellation">8.6.1 Arrival rate, queueing, admission, and cancellation<a class="headerlink" href="#861-arrival-rate-queueing-admission-and-cancellation" title="Permanent link">&para;</a></h3>
+<p>Sections 8.2 through 8.5 discussed how to change an instance's memory footprint and execution method. Online serving must also handle requests arriving continuously: before one request finishes, the next has already entered the queue; while one request waits for a tool to return, model computation pauses, but its KV must still be retained. The scheduler must therefore both arrange current computation and retain state for requests that are generating or waiting to continue.</p>
+<p>How much space is needed to retain the state of these unfinished requests depends on how many requests are, on average, present in the system. In steady-state service, the average number of requests in the system satisfies Little's Law:</p>
+<div class="arithmatex">\[
+\bar n=\lambda\bar T,
+\]</div>
+<p>where <span class="arithmatex">\(\lambda\)</span> is the average arrival rate and <span class="arithmatex">\(\bar T\)</span> is the average time a request spends in the system. Summing the residence time of every request observed and dividing by the observation duration gives the average number of requests in the system. For example, at an arrival rate of 4 requests per second with an average residence time of 0.5 seconds, the system holds an average of 2 requests; if the average residence time rises to 2 seconds, this becomes 8.</p>
+<p>Some of these requests are queueing, some are computing, and some merely retain state. Increasing batch size can raise output throughput, but KV reads, computation, and other overheads gradually limit this growth. When processing speed can no longer keep up with a rising arrival rate, new requests accumulate in the queue, and waiting time lengthens accordingly.</p>
+<p><strong>Admission control</strong> decides whether to begin processing a new request. Before accepting a request, check the available KV space and how much time remains before the deadline. For the short request in Section 8.1, 0.196 seconds to first output plus 6.76 seconds of generation already uses 6.95 seconds; queueing for another 0.1 seconds would exceed the timeout. Identifying such requests in advance allows the system to reject them, hand them to another instance, or use a faster execution configuration. Cancellation, by contrast, stops scheduling further iterations once a request has lost its usefulness, and releases its space once in-flight accelerator operations complete.</p>
+<p>These optimizations interact with each other. KV compression lets an instance admit more requests simultaneously; a larger batch, in turn, lets ordinary decode share weights more effectively, changing the relative benefit of speculative decoding. The following applies these changes to the same set of requests, computing the combined execution time and memory footprint.</p>
+<h3 id="862-effective-throughput-under-quality-and-slo-constraints">8.6.2 Effective throughput under quality and SLO constraints<a class="headerlink" href="#862-effective-throughput-under-quality-and-slo-constraints" title="Permanent link">&para;</a></h3>
+<p>Looking only at queue length and completion speed cannot tell whether users actually got a usable answer. The quality experiments in Section 8.4.4 produced wrong answers, while queueing produces correct-but-late responses. Only by counting both kinds of loss together can service effectiveness be evaluated. Let the observation window have length <span class="arithmatex">\(T_{\mathrm{obs}}\)</span>, let <span class="arithmatex">\(Q_i=1\)</span> when request <span class="arithmatex">\(i\)</span> is correct, and let <span class="arithmatex">\(D_i=1\)</span> when it completes on time. Counting by completed requests, the effective throughput is</p>
+<div class="arithmatex">\[
+R_{\mathrm{good}}=\frac{\sum_i Q_iD_i}{T_{\mathrm{obs}}}.
+\]</div>
+<p>The numerator counts only requests that are both correct and completed on time. If instead the numerator counts all completed requests, one gets the completion throughput. The gap between the two shows how much processing capacity went into wrong or late answers.</p>
+<p>A set of measurements shows the size of these two losses. The Qwen3-8B retrieval experiment used the same eight questions, requiring requests to complete correctly within 3 seconds of arrival, and compared three modes: individual admission, continuous batching, and submitting all requests at once. Each experiment submitted 16 requests; across all experiments, 336 responses were generated in total, of which 294 were correct, but only 155 also met the deadline. The remaining 139 correct responses returned too late to meet the service requirement.<sup id="fnref:service"><a class="footnote-ref" href="#fn:service">24</a></sup></p>
+<p><img alt="Figure 8-33: Each admission-and-arrival condition uses three windows of 16 requests. Bars show the median throughput of all completed requests; dots show results for individual windows. Time is measured from the scheduled arrival." src="images/figure-8-13-service.png" /></p>
+<p><img alt="Figure 8-34: The numerator counts only requests that are correct and complete within 3 seconds. Both figures use the same horizontal-axis ordering and vertical-axis range; the gap comes from wrong or late responses." src="images/figure-8-service-goodput.png" /></p>
+<p>At an arrival rate of 1/s, both online strategies achieve an effective throughput of about 0.90 req/s. With less work per batch, individual admission can also handle most correct requests promptly. When the arrival rate rises to 4/s, individual admission's completion throughput is about 1.22 req/s, but its effective throughput drops to 0.31 req/s; the queue lengthens, and many correct outputs miss the deadline. Continuous batching raises completion throughput to about 2.33 req/s, with effective throughput reaching about 1.02 req/s — more requests complete within the deadline.</p>
+<p>Pushing the continuous-batching arrival rate further to 16/s, completion throughput only rises to about 2.38 req/s, while effective throughput instead falls to about 0.60 req/s, a decrease of about 41%. Completion throughput has essentially stopped growing; more arrivals mainly add to queueing time. For this set of windows, 4/s returned more correct answers on time than 16/s. When choosing a service configuration, first find the arrival rate at which effective throughput begins to decline, then limit the number of newly admitted requests to avoid excessive queueing time.</p>
+<p>With individual admission, other requests that have not yet entered the engine still wait in the application queue. Timing should therefore begin from each request's originally scheduled arrival time, including this wait outside the engine. Combining the measurements in this section, one must compute separately how many tokens per second the accelerator outputs, how long a single request waits, and how many requests per second are correct and on time.</p>
+<h3 id="863-configuration-accelerators-and-full-task-cost">8.6.3 Configuration, accelerators, and full-task cost<a class="headerlink" href="#863-configuration-accelerators-and-full-task-cost" title="Permanent link">&para;</a></h3>
+<p>Before comparing configurations, convert measurements into processing speeds. Once batching, precision, and cache settings are fixed, dividing completed work by accelerator occupancy time gives the actual processing speed for each stage: prefill speed <span class="arithmatex">\(r_P\)</span>, measured in new input tokens processed per second, and decode speed <span class="arithmatex">\(r_D\)</span>, measured in completed decode calls per second. When multiple requests within a batch share one execution pass, each request counts as one completed call, and the occupancy time is counted only once. For a request with <span class="arithmatex">\(L\)</span> new input tokens and <span class="arithmatex">\(G\)</span> output tokens, the accelerator occupancy time (in GPU-seconds) is</p>
+<div class="arithmatex">\[
+t_{\mathrm{GPU}}=\frac{L}{r_P}+\frac{G-1}{r_D}.
+\]</div>
+<p>Without a matching measurement, one can estimate by multiplying specification values by efficiency: prefill time is estimated as matrix computation divided by the product of peak compute and compute efficiency; the time for one decode round is estimated as the bytes of weights and KV read divided by the product of peak bandwidth and bandwidth efficiency. The table below gives the efficiency measured on the RTX PRO 6000 in Experiment 8-1. One decode round is taken from rounds in the engine's per-round log that do not include prefill; the interval seen by the client also includes delivery time and is slightly longer, e.g., the 26.5 ms in Section 8.1.1.</p>
+<table>
+<thead>
+<tr>
+<th>2K context, no shared prefix</th>
+<th style="text-align: right;">batch 1</th>
+<th style="text-align: right;">batch 4</th>
+<th style="text-align: right;">batch 16</th>
+<th style="text-align: right;">batch 64</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Weights and KV read per round</td>
+<td style="text-align: right;">15.44 GB</td>
+<td style="text-align: right;">16.34 GB</td>
+<td style="text-align: right;">19.97 GB</td>
+<td style="text-align: right;">34.46 GB</td>
+</tr>
+<tr>
+<td>Time required at 1792 GB/s</td>
+<td style="text-align: right;">8.62 ms</td>
+<td style="text-align: right;">9.12 ms</td>
+<td style="text-align: right;">11.14 ms</td>
+<td style="text-align: right;">19.23 ms</td>
+</tr>
+<tr>
+<td>Measured decode round</td>
+<td style="text-align: right;">26.26 ms</td>
+<td style="text-align: right;">26.62 ms</td>
+<td style="text-align: right;">27.44 ms</td>
+<td style="text-align: right;">29.63 ms</td>
+</tr>
+<tr>
+<td>Decode bandwidth efficiency</td>
+<td style="text-align: right;">33%</td>
+<td style="text-align: right;">34%</td>
+<td style="text-align: right;">41%</td>
+<td style="text-align: right;">65%</td>
+</tr>
+<tr>
+<td>Prefill compute efficiency</td>
+<td style="text-align: right;">62%</td>
+<td style="text-align: right;">61%</td>
+<td style="text-align: right;">61%</td>
+<td style="text-align: right;">58%</td>
+</tr>
+</tbody>
+</table>
+<p>Decode efficiency rises with batch size not because reading got faster. This experiment disabled CUDA Graph, so every round had to submit kernels one by one: the amount read rose from 15.44 GB to 34.46 GB, while the round only grew from 26.26 ms to 29.63 ms — the larger the batch, the more bytes over which this nearly fixed overhead is amortized. Prefill efficiency, meanwhile, holds steady at 58%–62% of BF16 peak; for an 8K input with the first 6K already cached, it is 52%–58%.</p>
+<p>The bandwidth efficiency in the table is the MBU from Section 1.2.2, and the compute efficiency is the MFU. At batch 1, one decode round exceeds the 8.62 ms read lower bound by about 17.6 ms, and this gap barely changes with the amount read. By the criterion in Section 1.3.4, this is not model overhead but rather the cost of submitting kernels one at a time along with host-side scheduling and synchronization — overhead that CUDA Graph and better scheduling can remove; the vLLM v0.6.0 case in Section 5.5.1 shows how far host-side overhead can be reduced.</p>
+<p><strong>Comprehensive example: choosing prefix sharing, compression, and speculative configurations under memory and deadline constraints.</strong> Effective throughput provides the standard for evaluating service, while capacity and timing analysis can rule out unsuitable configurations before running anything. Take the inference instance defined at the start of the chapter: the RTX PRO 6000 allocates 32 GiB to this instance; after subtracting weights and the basic workspace, 12 GiB remains for KV and auxiliary buffers. Sixteen long requests arrive simultaneously, each with 8192 input tokens and 256 output tokens, of which the first 6144 input tokens are identical; the deadline is 7 seconds. The four schemes below are compared, assuming all four give correct answers. The sharing scheme has already cached the common prefix before the requests arrive. The speculative scheme uses the DFlash draft model from Experiment 8-5. Enabling it increases peak process GPU memory by about 3.1 GiB (from 17,706 MiB to 20,894 MiB), of which about 1.95 GiB is the draft model's weights. The draft model must also process the input; in Experiment 8-5, with an input of about 2300 tokens, first-token time rose from 129.4 ms to 141.6 ms, an increase of 9.4%. Assume this set of requests averages 3 output tokens per round.</p>
+<p>The sharing scheme for this set of requests is exactly the condition measured in Experiment 8-1: 8K input, first 6K cached, batch 16. The prefill stage processes 32,768 new tokens in 2.04 s, giving <span class="arithmatex">\(r_P\approx16{,}059\)</span> new tokens/s, reaching 58% of peak compute; thereafter each decode round takes 27.35 ms, giving <span class="arithmatex">\(r_D=16/0.02735\approx585\)</span> calls/s. Each request occupies <span class="arithmatex">\(t_{\mathrm{GPU}}=2048/16059+255/585\approx0.563\)</span> GPU-seconds, totaling about 9.01 GPU-seconds for the 16 requests. The remaining schemes are derived from this table and measurements under the same conditions; the table below gives the per-stage times for the full batch of 16 requests.<sup id="fnref:service-plan"><a class="footnote-ref" href="#fn:service-plan">25</a></sup></p>
+<table>
+<thead>
+<tr>
+<th>Scheme</th>
+<th>State organization</th>
+<th style="text-align: right;">Before first token returns (full-batch prefill)</th>
+<th>Execution after first token returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>BF16, independent context</td>
+<td style="text-align: right;">7.34 s</td>
+<td>255 rounds, 29.63 ms each</td>
+</tr>
+<tr>
+<td>B</td>
+<td>BF16, shared prefix</td>
+<td style="text-align: right;">2.04 s</td>
+<td>255 rounds, 27.35 ms each</td>
+</tr>
+<tr>
+<td>C</td>
+<td>q8_0, independent context</td>
+<td style="text-align: right;">7.34 s</td>
+<td>255 rounds, about 28.26 ms each</td>
+</tr>
+<tr>
+<td>D</td>
+<td>BF16, shared prefix with speculation</td>
+<td style="text-align: right;">2.23 s</td>
+<td>85 rounds, 3 output tokens each round, 27.35 ms each</td>
+</tr>
+</tbody>
+</table>
+<p>A and C do not share a prefix, so each request must fully process 8192 tokens; the whole batch's matrix computation is 2137.5 TFLOP, which at the same 58% compute efficiency takes about 7.34 s. A reads 34.46 GB per round, the same as 64 requests at 2K context, giving 29.63 ms from the table; C's KV is compressed by <span class="arithmatex">\(34/64\)</span>, reading 25.40 GB per round, which interpolates between the 19.97 GB and 34.46 GB columns in the table to about 28.26 ms — not yet counting format-conversion time. D's prefill is 9.4% more than B's, about 2.23 s. In D, each round verifies 8 positions for each of the 16 requests, requiring about 2.56 TFLOP of matrix computation, which at 58% efficiency takes about 8.8 ms — shorter than B's 27.35 ms per round; following Section 8.2.1, taking the larger of the two, each round remains 27.35 ms. The draft network's forward pass also completes within the same round; in Experiment 8-5, DFlash's median per-round latency was no longer than one ordinary decode step (Section 8.5.2), so no additional time is added here.</p>
+<p>First check whether memory suffices. A requires <span class="arithmatex">\(16\times1188=19008\)</span> MiB, exceeding 12 GiB, and cannot admit this set of requests simultaneously. B needs only one prefix copy plus 16 private states, totaling 6048 MiB, about 5.91 GiB. C's state, compressed by <span class="arithmatex">\(34/64\)</span>, totals about 9.86 GiB. D adds 3188 MiB on top of B, totaling 9236 MiB, about 9.02 GiB. B, C, and D can all fit in memory, so compare the time each needs to complete the requests.</p>
+<p>B's total time is <span class="arithmatex">\(2.04+255\times0.02735=9.01\)</span> seconds, consistent with the 9.02-second median request latency measured in Experiment 8-1, but this exceeds the 7-second deadline. On this card, just 255 rounds of decode take 6.97 seconds; generating 256 output tokens one token at a time for all 16 requests together cannot finish on time. C loses prefix reuse, with prefill rising from 2.04 s to 7.34 s, giving a total time of <span class="arithmatex">\(7.34+255\times0.02826=14.55\)</span> seconds. D outputs 3 tokens per round, generating the remaining <span class="arithmatex">\(85\times3=255\)</span> tokens in 85 rounds, for a total time of</p>
+<div class="arithmatex">\[
+T_D=2.23+85\times0.02735=4.56\ \mathrm{s}.
+\]</div>
+<p>With A ruled out by insufficient memory and B and C ruled out by timeout, only D returns all 16 correct answers on time. This comparison used, in sequence, the capacity after prefix sharing, the size under a compressed format, the per-round time, and the per-round output count. On this card, the time for one decode round barely changes with batch size or context length; only reducing the number of rounds can meaningfully shorten the generation stage.</p>
+<p>Figure 8-35 plots these two checks on the same plane. Crossing the dashed line horizontally means KV and auxiliary buffers exceed 12 GiB; crossing it vertically means completion time exceeds 7 seconds. Only D falls within both limits.</p>
+<p><img alt="Figure 8-35: Comparison of configurations for 16 long requests on the RTX PRO 6000. The horizontal axis is KV and auxiliary buffer usage, after subtracting the shared weights and basic workspace; the vertical axis is the total time for the whole batch of requests, derived from measurements in Experiments 8-1 and 8-5. A lacks sufficient memory and cannot run on this instance; the figure shows the time it would require. The shaded region satisfies both the 12 GiB and 7-second limits. A is BF16 with independent context, B is BF16 with shared prefix, C is q8_0 with independent context, and D is BF16 with shared prefix plus speculative decoding." src="images/figure-8-14-design.png" /></p>
+<p>Finally, compare cost. The time this card spends per qualifying result equals the total time from arrival to full completion for the batch, divided by the number of qualifying results. For D, this is <span class="arithmatex">\(4.56/16\approx0.285\)</span> GPU-seconds; at a power cap of 600 W, the energy per qualifying result is no more than about 171 J. B occupies this card for 9.01 seconds, yet under the 7-second deadline produces zero qualifying results — all of that time and energy is wasted.</p>
+<p><strong>How does the choice change if memory shrinks or output shortens?</strong> If the available memory for KV and auxiliary buffers drops from 12 GiB to 6 GiB, D's requirement of about 9.02 GiB no longer fits; B's requirement of about 5.91 GiB fits but would time out. This set of requests then has no feasible scheme, leaving only options such as relaxing the deadline, shortening the output, or switching to a draft source that consumes no GPU memory (see Exercise 8-9). If memory stays the same but output is shortened to 16 tokens, B needs <span class="arithmatex">\(2.04+15\times0.02735=2.45\)</span> seconds, and D needs <span class="arithmatex">\(2.23+5\times0.02735=2.37\)</span> seconds. Both finish on time, and D is only 0.08 seconds faster: the extra 0.19 seconds of prefill the draft model performs nearly cancels out the time saved by running 10 fewer decode rounds.</p>
+<p>The analysis above covers only execution time within the instance. Computing the duration of a complete agent task also requires adding tool execution and external waiting. Suppose a task takes 100 seconds in total, of which decode accounts for 50 seconds; speeding up decode fourfold changes the total time to <span class="arithmatex">\(50+50/4=62.5\)</span> seconds, an overall speedup of 1.6x. If decode originally accounted for only 20 seconds, the total time instead becomes <span class="arithmatex">\(80+20/4=85\)</span> seconds, an overall speedup of only about 1.18x. In general, let <span class="arithmatex">\(f\)</span> be the fraction of the original total time occupied by decode, and let that stage be sped up by a factor of <span class="arithmatex">\(s\)</span>, with the other stages' time unchanged; Amdahl's Law then gives</p>
+<div class="arithmatex">\[
+S_{\mathrm{task}}=\frac{1}{(1-f)+f/s}.
+\]</div>
+<p><img alt="Figure 8-36: Amdahl speedup curves with other stages' time fixed and no added preparation work. The three curves take decode as 20%, 50%, and 80% of the baseline time, respectively. The higher the original share of time occupied by this stage, the greater the benefit from a local speedup." src="images/figure-8-15-task.png" /></p>
+<p>In Figure 8-36, the lower the decode fraction, the earlier the curve flattens: even as the generation stage keeps accelerating, tool calls and other waiting still occupy their original share of time. Comparing accelerator occupancy and energy consumption must also cover these stages, and should be computed against the final count of qualifying requests. Let <span class="arithmatex">\(T_{\mathrm{GPU}}\)</span> denote the total time the accelerator is occupied during the observation window, <span class="arithmatex">\(E_{\mathrm{obs}}\)</span> the total energy consumption, and <span class="arithmatex">\(N_g\)</span> the number of qualifying results; then each qualifying result occupies on average <span class="arithmatex">\(T_{\mathrm{GPU}}/N_g\)</span> of GPU time and consumes <span class="arithmatex">\(E_{\mathrm{obs}}/N_g\)</span> of energy. Experiment 8-9 read the energy counters of both the GPU and the CPU package (the entire processor package) on the same card: under continuous batching at arrival rates of 1, 4, and 16 req/s, each qualifying result consumed 615.0, 652.0, and 1083.7 J respectively; one-at-a-time admission at 4 req/s consumed 1982.3 J. At 16/s, continuous batching's completion throughput is close to that at 4/s, yet more responses arrive late, and the energy per qualifying result is about 66% higher. Even when an answer is wrong or returns too late, the energy already consumed must still be counted toward the total cost.<sup id="fnref2:service"><a class="footnote-ref" href="#fn:service">24</a></sup></p>
+<blockquote>
+<p><strong>Exercise 8-8 · Calculation: how stage acceleration and draft preparation change total task time.</strong> A 100-second task consists of 20 seconds of prefill, 50 seconds of decode, and 30 seconds of tool use and waiting. Halve the time of each of the three parts individually, and find the total task time for each case. Separately, starting from the original task, reduce the decode time to one quarter of its original value and add 8 seconds of draft preparation time; find the net speedup, and calculate at what preparation time this change stops saving time.</p>
+<p><strong>Exercise 8-9 · Core · Comprehensive design: reducing the GPU time occupied per qualifying result within capacity and deadline constraints.</strong> Using the capacity and timing of the comprehensive example on the RTX PRO 6000, build Scheme E on top of B: share a BF16 prefix, and switch the draft to lookup from context (Section 8.5.2), with the index kept in host memory, consuming no GPU memory and adding no prefill; each request outputs on average 2 tokens per round, followed by 128 subsequent rounds, with the whole batch taking 27.35 ms per round plus a 0.1 ms lookup. Compute E's memory footprint, total time, and GPU-seconds occupied per qualifying result, and compare with B and D; then separately change the available memory for KV and auxiliary buffers to 6 GiB, and change the output length to 16 tokens, and re-select. In the open-ended experiment section, run both configurations against the same problem set and arrival trace, recording the arrival, first output, completion, correctness, and peak state for all requests, and compute effective throughput using this section's formulas.</p>
+</blockquote>
+<h2 id="history-and-further-reading">History and Further Reading<a class="headerlink" href="#history-and-further-reading" title="Permanent link">&para;</a></h2>
+<p>Per-iteration admission of new requests, paged attention, and prefix-tree caching each advanced request scheduling, state allocation, and computation reuse respectively. The related designs of Orca, PagedAttention, and SGLang can be read along these lines; Sarathi-Serve and NanoFlow further studied chunking, pipelining, and overlap across different resources.<sup id="fnref2:schedule-survey"><a class="footnote-ref" href="#fn:schedule-survey">4</a></sup><sup id="fnref2:nanoflow"><a class="footnote-ref" href="#fn:nanoflow">7</a></sup></p>
+<p>The multi-adapter serving of Section 8.2.1 can be continued through Punica and S-LoRA, which respectively manage adapters and request state, executing each adapter's low-rank computation while sharing a common base model.<sup id="fnref2:lora"><a class="footnote-ref" href="#fn:lora">10</a></sup></p>
+<p>Hybrid attention and recurrent models extend cache indexing into a state-recovery problem; Marconi and related work discuss recovery opportunities and cache value. Weight offloading, tensor encoding, and unified-memory execution connect accelerator capacity to link cost; the accompanying M2 Max records show the actual KV allocation and input processing of small models.<sup id="fnref2:hybrid"><a class="footnote-ref" href="#fn:hybrid">12</a></sup><sup id="fnref2:codec"><a class="footnote-ref" href="#fn:codec">17</a></sup><sup id="fnref:mac"><a class="footnote-ref" href="#fn:mac">18</a></sup></p>
+<p>The acceptance and correction rules of speculative sampling laid the foundation for preserving the target distribution; subsequent methods that draft from context lookup, predict drafts from intermediate features, and generate drafts in parallel mainly change the per-round overhead and the accepted draft length. Complete agent tasks also include tool and external stages; published speed and task records can be read together with the stage breakdown of Section 8.6.<sup id="fnref3:spec"><a class="footnote-ref" href="#fn:spec">21</a></sup><sup id="fnref:task"><a class="footnote-ref" href="#fn:task">26</a></sup></p>
+<h2 id="chapter-summary">Chapter Summary<a class="headerlink" href="#chapter-summary" title="Permanent link">&para;</a></h2>
+<p>This chapter started from the execution process of a single request and progressively analyzed the relationships among memory capacity, computation arrangement, and service outcomes. Different requests share weights, while KV grows with each request's own context. Batching reduces the weight reads amortized per output token, but each request still must read its own context. This benefit depends on the performance of the underlying resources: once weights are instead served by faster, independent storage, batching no longer amortizes weight reads, and different batch sizes and speculative decoding schemes must be compared afresh. Continuous batching promptly uses the execution slots freed by short requests, while chunked prefill reduces the interference of long inputs on the generation process of existing requests.</p>
+<p>How KV is managed determines how many requests an instance can handle simultaneously. Paging allocates space on demand, sharing keeps only one copy of a common prefix, and prefix caching further eliminates redundant computation. Appending, rewriting, and summarizing context change cache reuse as well as the cost of subsequent state storage and reads; when comparing these context organization methods against other serving optimizations, the same task quality requirements should be applied. Compression further reduces storage; offloading moves part of the weights off the accelerator, at the cost of repeated movement. Speculative decoding adds the overhead of draft generation and verification, but lets a single target-model computation determine multiple output tokens. All these changes can be compared through memory footprint, per-round latency, and outputs per round.</p>
+<p>The comprehensive example at the end of the chapter first checks whether memory is sufficient, then determines whether the deadline can be met, and finally compares the GPU time occupied per qualifying result. With prefix sharing, the 16 long requests that previously could not fit can now execute simultaneously; but on the RTX PRO 6000, generating 256 output tokens token by token would still miss the deadline, and it is speculative decoding, by reducing the number of decode rounds, that lets them complete on time. When available memory decreases, this set of requests finds no feasible scheme; when the output is shortened, speculative decoding's advantage nearly disappears. The reasons behind each change in choice can all be traced back to the data volumes, execution times, and output counts derived in this chapter.</p>
+<p>After completing the configuration comparisons in this chapter, three kinds of results should be recorded: how many requests' state can be held simultaneously under a given accelerator, precision, and request length; how fast prefill and decode each process work; and how request latency varies with batch size and arrival rate. These results already incorporate the effects of scheduling, caching, and kernel efficiency.</p>
+<p>The next chapter builds on these results to decide what work each type of accelerator takes on, how many execution units are needed, and how KV is transferred and shared. Multiple accelerators can either jointly execute a single instance or form multiple complete replicas or separately scheduled stage pools. Batching decisions determine how existing resources process requests, while deployment decisions determine how these resources divide the work; together they shape the performance of the complete service.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:batch">
+<p>The fixed model's <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/batch-reuse-pro6000-2k.md">batching computation</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/batch-reuse-pro6000-8k.md">8K comparison</a> on the RTX PRO 6000. Full BF16 weights are 16,381,470,720 bytes, and one step of ideally shared matrix weight reads is 15,136,811,008 bytes; embeddings are looked up by row per request, but the full embedding matrix must still be kept resident in memory. The reads table is first computed with exact byte counts and then each item is rounded.&#160;<a class="footnote-backref" href="#fnref:batch" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:batch" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:device">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/references/files/specs/nvidia-rtx-blackwell-pro.pdf">NVIDIA RTX Blackwell PRO specification</a>, Appendix A, Table 4, compiled in the rtx-pro6000-blackwell-ws row of the <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/hardware.md">hardware parameters table</a>.&#160;<a class="footnote-backref" href="#fnref:device" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:batch-measure">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-01/README.md">Raw records of the batch sweep</a>. RTX PRO 6000, vLLM 0.23.0, BF16, three runs; the main text reports the median, throughput covers the remaining prefill and generation, and excludes loading and warmup; the 8K condition first establishes a shared prefix.&#160;<a class="footnote-backref" href="#fnref:batch-measure" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:schedule-survey">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/references/files/papers/orca.pdf">Orca original paper</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/chunking-and-state-transfer.md">chunked computation and versioning notes</a>.&#160;<a class="footnote-backref" href="#fnref:schedule-survey" title="Jump back to footnote 4 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:schedule-survey" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:schedule">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/iteration-batching-pro6000-fixed.md">Fixed batch size</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/iteration-batching-pro6000-continuous.md">continuous batching</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/iteration-batching-pro6000-chunked.md">chunked strategy</a>. Per-round latency parameters are fitted from <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-01/efficiency.json">Experiment 8-1's per-round records</a>: for batch 1, a 2K decode round is 26.26 ms, prefill is 94.8 ms; the last output token has not yet been written into the KV cache when the request ends.&#160;<a class="footnote-backref" href="#fnref:schedule" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:chunk">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/chunk-history-book.md">Chunked computation and archiving measurements</a>. 11 requests, 16 chunks each; median first- and last-chunk times are 25.30 and 35.07 ms; the CUDA event interval covers the full model path and possible host-side gaps, excluding external logits/sampling. Each chunk executes in its original order, with input tokens and content changing chunk by chunk.&#160;<a class="footnote-backref" href="#fnref:chunk" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+<li id="fn:nanoflow">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/research/2026-infra-survey/reading-osdi-2025.md">OSDI 2025 survey</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/references/proceedings/OSDI/2025/selected/osdi25-zhu-kan.pdf">NanoFlow final paper</a>, and <a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/resource-sharing-and-placement.md">resource sharing and placement case study</a>.&#160;<a class="footnote-backref" href="#fnref:nanoflow" title="Jump back to footnote 7 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:nanoflow" title="Jump back to footnote 7 in the text">&#8617;</a></p>
+</li>
+<li id="fn:replay">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-02/README.md">Six-request measurement</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/graph-execution-tradeoffs.md">graph execution trade-offs</a>. The experiment executes six synthetic text requests in a fixed order on a shared GPU.&#160;<a class="footnote-backref" href="#fnref:replay" title="Jump back to footnote 8 in the text">&#8617;</a></p>
+</li>
+<li id="fn:pages">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-03/README.md">Paging, cancellation, and preemption</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-03/branch-sharing/README.md">four-branch sharing</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-03/cold-branches/README.md">cold-branch comparison</a>. Shared branches produce identical outputs; cold and hot branches have the same peak block count but different prefill volumes.&#160;<a class="footnote-backref" href="#fnref:pages" title="Jump back to footnote 9 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:pages" title="Jump back to footnote 9 in the text">&#8617;</a></p>
+</li>
+<li id="fn:lora">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/research/2026-infra-survey/reading-mlsys-2024.md">MLSys 2024 survey</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/multi-lora-serving.md">multi-LoRA computation</a>.&#160;<a class="footnote-backref" href="#fnref:lora" title="Jump back to footnote 10 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:lora" title="Jump back to footnote 10 in the text">&#8617;</a></p>
+</li>
+<li id="fn:context">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/author-context-and-design.md">Context engineering case study</a>.&#160;<a class="footnote-backref" href="#fnref:context" title="Jump back to footnote 11 in the text">&#8617;</a></p>
+</li>
+<li id="fn:hybrid">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/hybrid-prefix-state.md">Hybrid state recovery and checkpoint computation</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/research/2026-infra-survey/reading-mlsys-2025.md">MLSys 2025 survey</a>. Kimi K3's capacity is computed based on the specified storage format and parallelism configuration.&#160;<a class="footnote-backref" href="#fnref:hybrid" title="Jump back to footnote 12 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:hybrid" title="Jump back to footnote 12 in the text">&#8617;</a></p>
+</li>
+<li id="fn:prefix">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-04/README.md">Cache replay of 12 rounds of real input</a>. The replay uses the input sequence of the original task, executing requests serially, generating one token per round.&#160;<a class="footnote-backref" href="#fnref:prefix" title="Jump back to footnote 13 in the text">&#8617;</a></p>
+</li>
+<li id="fn:files">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/inference-training-scenarios.md">Fixed model files and service budget</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/references/outline-checks/2026-09-07/systems-cases/qwen235-gguf-metadata.json">235B shard metadata</a>. Exact bytes, GB, and GiB are reported separately.&#160;<a class="footnote-backref" href="#fnref:files" title="Jump back to footnote 14 in the text">&#8617;</a></p>
+</li>
+<li id="fn:kv-format">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/kv-quantization-and-execution.md">KV format and execution cost</a>. The material includes the GGML grouped format, FP8 scale granularity, and fitted results on the H100.&#160;<a class="footnote-backref" href="#fnref:kv-format" title="Jump back to footnote 15 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:kv-format" title="Jump back to footnote 15 in the text">&#8617;</a></p>
+</li>
+<li id="fn:offload">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/weight-offload-execution.md">Weight offloading and prefetch computation</a>; the copy and prefetch scheduling for the two link tiers <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/weight-offload-pcie5.md">PCIe Gen5</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/weight-offload-gh200-c2c.md">NVLink-C2C</a>, with per-layer computation time taken as the batch-1 decode round time of 26.26 ms divided by 36 layers; <a href="https://github.com/bojieli/ai-infra-book/blob/main/references/files/documents/nvidia-grace-hopper-blog.md">GH200 architecture notes</a>: NVLink-C2C totals 900 GB/s, 450 GB/s per direction.&#160;<a class="footnote-backref" href="#fnref:offload" title="Jump back to footnote 16 in the text">&#8617;</a></p>
+</li>
+<li id="fn:codec">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/tensor-codec-and-transfer.md">Tensor compression and transfer</a>. The material includes the LLM.265 video engine implementation, dedicated hardware design, and performance estimation.&#160;<a class="footnote-backref" href="#fnref:codec" title="Jump back to footnote 17 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:codec" title="Jump back to footnote 17 in the text">&#8617;</a></p>
+</li>
+<li id="fn:mac">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-07/README.md">M2 Max small-model capacity records</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-07/context32k/README.md">32K supplementary test</a>. Each slot executes prefill in sequence.&#160;<a class="footnote-backref" href="#fnref:mac" title="Jump back to footnote 18 in the text">&#8617;</a></p>
+</li>
+<li id="fn:quality">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-08/README.md">KV and Q precision comparison</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-08/quantized-q-control/README.md">Q control with fixed FP8 weights</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-08/concurrency/README.md">concurrency capacity records</a>. The main text uses the BF16 weight group. In another group with fixed FP8 weights, BF16 Q and the default path are 32/32 and 28/32 respectively.&#160;<a class="footnote-backref" href="#fnref:quality" title="Jump back to footnote 19 in the text">&#8617;</a></p>
+</li>
+<li id="fn:retry">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-08/retry-cost/README.md">Natural output and retry cost</a>. The experiment uses answer verification with known answers; retry cost includes the generation cost of the incorrect first answer.&#160;<a class="footnote-backref" href="#fnref:retry" title="Jump back to footnote 20 in the text">&#8617;</a></p>
+</li>
+<li id="fn:spec">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/references/files/papers/speculative-sampling.pdf">Speculative sampling original paper</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/references/files/papers/speculative-decoding.pdf">speculative decoding original paper</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/speculative-execution.md">framework counting and budget notes</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/research/2026-infra-survey/framework-coverage.md">framework coverage in the survey</a>. The basic probability algorithm, draft routes, and specific implementations are cited separately.&#160;<a class="footnote-backref" href="#fnref:spec" title="Jump back to footnote 21 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:spec" title="Jump back to footnote 21 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:spec" title="Jump back to footnote 21 in the text">&#8617;</a></p>
+</li>
+<li id="fn:history">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/case-studies/history-drafts-and-rollout.md">Distribution and cost computation for context drafts</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/research/2026-infra-survey/history-speculation-arithmetic.json">rational-number exhaustive results</a>. The example uses a two-symbol target distribution; per-round times on the RTX PRO 6000 are given in <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/speculative-round-pro6000-aaaa.md">AAAA</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/speculative-round-pro6000-bbbb.md">BBBB</a>, and <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/speculative-budget-pro6000-index.md">the 256-token request with a 2-second index</a>; the 26.26 ms ordinary decode round is taken from <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-01/efficiency.json">Experiment 8-1's per-round records</a>, and DFlash's per-round time is taken from the step-by-step records of <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-05/README.md">Experiment 8-5</a>.&#160;<a class="footnote-backref" href="#fnref:history" title="Jump back to footnote 22 in the text">&#8617;</a></p>
+</li>
+<li id="fn:spec-measure">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-05/README.md">DFlash same-executor comparison</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-05/kernel-trace/README.md">per-request stage observations</a>. The experiment executes a given short problem set in fixed order under low concurrency. At concurrency 1, the median times for ordinary, K7, and K15 to pass the short problem set are 90.02, 30.58, and 29.43 ms respectively; the paired outputs total 32 pairs.&#160;<a class="footnote-backref" href="#fnref:spec-measure" title="Jump back to footnote 23 in the text">&#8617;</a></p>
+</li>
+<li id="fn:service">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-09/README.md">Raw records of service and energy</a>. Same device, eight problems, seven conditions, three 16-request windows each; the same problem produces consistent output across conditions, and 42 errors come from the same problem. The throughput table uses the median of each window's metrics. Each window contains 16 requests; p95 is computed at the ceiling of the sorted position, which yields the maximum value. The NVML and RAPL component counting windows are slightly wider than the request windows, with other services still running.&#160;<a class="footnote-backref" href="#fnref:service" title="Jump back to footnote 24 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:service" title="Jump back to footnote 24 in the text">&#8617;</a></p>
+</li>
+<li id="fn:service-plan">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-01/efficiency.json">Experiment 8-1's efficiency table</a> is exported by the <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-01/efficiency.py">computation script</a> from the <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-01/README.md">per-round records of the batch sweep</a>; the peaks are taken from the hardware table's RTX PRO 6000 values of 1792 GB/s and 503.8 TFLOP/s; DFlash's peak memory footprint, first-token time, and per-round time are taken from <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-05/README.md">Experiment 8-5</a>. Each scheme's memory and time are recomputed by the <a href="https://github.com/bojieli/ai-infra-book/blob/main/manuscripts/ch08/teaching-check.py">example check script</a>.&#160;<a class="footnote-backref" href="#fnref:service-plan" title="Jump back to footnote 25 in the text">&#8617;</a></p>
+</li>
+<li id="fn:task">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-06/README.md">Generation experiment and agent run records</a>. The agent records use non-streaming invocation; the stage-time figure uses the parameters given in the problem statement.&#160;<a class="footnote-backref" href="#fnref:task" title="Jump back to footnote 26 in the text">&#8617;</a></p>
+</li>
+<li id="fn:gguf">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/gguf-layout-q2k.md">Q2_K per-tensor layout</a>, <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/gguf-inventory-8k.md">8K file capacity</a>, and <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/gguf-inventory-32k.md">32K comparison</a>. Total file size is 85,691,002,112 bytes, code-value/floating-point payload is 69,178,275,840 bytes, quantization metadata is 16,506,720,256 bytes, and headers and padding are 6,006,016 bytes. The above file sizes are computed from the archived headers and released metadata.&#160;<a class="footnote-backref" href="#fnref:gguf" title="Jump back to footnote 27 in the text">&#8617;</a></p>
+</li>
+<li id="fn:pcie">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/references/files/specs/nvidia-rtx-pro6000-spec.pdf">RTX PRO 6000 Blackwell Workstation Edition specification</a>: system interface PCIe 5.0 x16, with bandwidth twice that of PCIe Gen4; <a href="https://github.com/bojieli/ai-infra-book/blob/main/references/files/specs/nvidia-a100-80-spec.pdf">A100 80GB specification</a>: PCIe 4.0 is 64 GB/s (combined send and receive), i.e., x16 gives 32 GB/s per direction. Hence PCIe Gen5 x16 gives 64 GB/s per direction. The main text computes using nominal values, yielding a lower bound on transfer time. The prefix recomputation time is computed from <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-01/efficiency.json">Experiment 8-1's efficiency table</a>.&#160;<a class="footnote-backref" href="#fnref:pcie" title="Jump back to footnote 28 in the text">&#8617;</a></p>
+</li>
+<li id="fn:cancel">
+<p>The cancellation observations come from the <a href="https://github.com/bojieli/ai-infra-book/blob/main/experiments/ch08/08-03/README.md">state experiment</a>. Recorded values are approximately 1.55 ms and 31.41 ms, with timing including observer overhead.&#160;<a class="footnote-backref" href="#fnref:cancel" title="Jump back to footnote 29 in the text">&#8617;</a></p>
+</li>
+<li id="fn:core-calculation">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/core-principles.json">Item-by-item recomputation</a> and <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/core_principles.py">computation procedure</a> for this chapter's condition comparisons.&#160;<a class="footnote-backref" href="#fnref:core-calculation" title="Jump back to footnote 30 in the text">&#8617;</a></p>
+</li>
+<li id="fn:v41-case">
+<p><a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/sources/deepseek-v4.1-flash/DeepSeek_V41_Tech_Report.pdf">DeepSeek V4.1 official technical report</a>, Sections 1, 2, 3, and 6; <a href="https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/v41-throughline.json">fixed conditions and recomputation across chapter sessions</a>.&#160;<a class="footnote-backref" href="#fnref:v41-case" title="Jump back to footnote 31 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="chapter07.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 7. Datacenter Networks">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                7. Datacenter Networks
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="chapter09.html" class="md-footer__link md-footer__link--next" aria-label="Next: 9. Distributed Inference">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                9. Distributed Inference
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.footer", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="assets/math.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

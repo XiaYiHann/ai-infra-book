@@ -1,0 +1,944 @@
+
+<!doctype html>
+<html lang="zh-TW" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="從資料搬移理解晶片、網路、推理與訓練系統">
+      
+      
+      
+        <link rel="canonical" href="https://xiayihann.github.io/ai-infra-book/zh-tw/index.html">
+      
+      
+      
+        <link rel="next" href="introduction.html">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>深入理解 AI Infra：量化分析與系統設計</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/reading.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#深入理解-ai-infra量化分析與系統設計" class="md-skip">
+          跳轉到
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="頁首">
+    <a href="index.html" title="深入理解 AI Infra：量化分析與系統設計" class="md-header__button md-logo" aria-label="深入理解 AI Infra：量化分析與系統設計" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            深入理解 AI Infra：量化分析與系統設計
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              首頁
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="teal"  aria-label="切換深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切換深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="teal"  aria-label="切換淺色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切換淺色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="選擇語言">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href=".././" hreflang="zh" class="md-select__link">
+              简体中文
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../en/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../zh-tw/" hreflang="zh-TW" class="md-select__link">
+              繁體中文
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../ru/" hreflang="ru" class="md-select__link">
+              Русский
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜尋" placeholder="搜尋" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="搜尋">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清除" aria-label="清除" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜尋引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/XiaYiHann/ai-infra-book" title="前往倉庫" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    XiaYiHann/ai-infra-book
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="導覽列" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="深入理解 AI Infra：量化分析與系統設計" class="md-nav__button md-logo" aria-label="深入理解 AI Infra：量化分析與系統設計" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    深入理解 AI Infra：量化分析與系統設計
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/XiaYiHann/ai-infra-book" title="前往倉庫" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    XiaYiHann/ai-infra-book
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    首頁
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="index.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    首頁
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目錄">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目錄
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#這本書寫什麼" class="md-nav__link">
+    <span class="md-ellipsis">
+      這本書寫什麼
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#十二章導讀" class="md-nav__link">
+    <span class="md-ellipsis">
+      十二章導讀
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#怎麼讀" class="md-nav__link">
+    <span class="md-ellipsis">
+      怎麼讀
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#配套材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      配套材料
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    前言
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter01.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    1. 初識 AI Infra
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter02.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    2. 模型架構
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter03.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    3. 推理與訓練負載
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter04.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    4. 加速器架構
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter05.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    5. 運算子與執行時
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter06.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    6. 超節點
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter07.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    7. 資料中心網路
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter08.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    8. 推理最佳化
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter09.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    9. 分散式推理
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter10.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    10. 訓練系統
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter11.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    11. 資源排程與執行環境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chapter12.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    12. 端邊雲協同
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目錄">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目錄
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#這本書寫什麼" class="md-nav__link">
+    <span class="md-ellipsis">
+      這本書寫什麼
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#十二章導讀" class="md-nav__link">
+    <span class="md-ellipsis">
+      十二章導讀
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#怎麼讀" class="md-nav__link">
+    <span class="md-ellipsis">
+      怎麼讀
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#配套材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      配套材料
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="深入理解-ai-infra量化分析與系統設計">深入理解 AI Infra：量化分析與系統設計<a class="headerlink" href="#深入理解-ai-infra量化分析與系統設計" title="Permanent link">&para;</a></h1>
+<p><strong>資料搬移塑造了 AI Infra 的架構。</strong> 從一次模型執行開始，理解晶片、網路、推理與訓練系統如何改變資料的複用、放置和等待。</p>
+<p><a href="https://github.com/bojieli/ai-infra-book/releases/latest/download/AI-Infra-Book-ZH-TW.pdf">下載全書 PDF</a> · <a href="https://github.com/bojieli/ai-infra-book/releases/latest/download/AI-Infra-Book-ZH-TW.epub">EPUB</a> · <a href="introduction.html">前言</a> · <a href="https://github.com/bojieli/ai-infra-book">GitHub 倉庫</a></p>
+<p>繁體中文版由社群貢獻者 <a href="https://github.com/edward821220">@edward821220</a> 翻譯整理，可能落後於簡體中文原版；數字、公式與引用以原版為準。</p>
+<h2 id="這本書寫什麼">這本書寫什麼<a class="headerlink" href="#這本書寫什麼" title="Permanent link">&para;</a></h2>
+<p>《深入理解 AI Infra》是 GitHub 上獲得 45k+ Star 的<a href="https://github.com/bojieli/ai-agent-book">《深入理解 AI Agent：設計原理與工程實踐》</a>的姊妹篇。</p>
+<p>寫完《深入理解 AI Agent》後，在與讀者交流的過程中，我越來越感到：要開發好基於模型的應用，還需要理解它賴以執行的基礎設施。大多數軟體工程師不必親自開發作業系統、編譯器和晶片，卻仍要學習作業系統、編譯原理和計算機體系結構，因為申請記憶體、讀取檔案、呼叫函式，背後都有資源與時間代價。基於模型開發應用也是如此。延遲相差幾倍，產品體驗就可能完全不同；成本相差一個數量級，能夠支撐的商業模式也隨之改變。</p>
+<p>更深層的變化是<strong>程式設計抽象的上移：從作業系統到模型上下文</strong>。傳統的作業系統、編譯器和硬體要為事先未知的各種程式提供通用能力，系統最佳化總要在可程式設計性與效能之間取捨。如今 LLM 成了最重要的應用，從運算元執行到分散式排程，都可以針對特定的模型和加速器架構最佳化；模型設計也開始反過來適應硬體。從某種意義上說，<strong>模型成了 LLM 時代的作業系統，AI Infra 成了 LLM 時代的計算機體系結構</strong>。</p>
+<p>貫穿全書的方法是<strong>從約束推導設計</strong>：先明確任務與品質要求，列出計算、儲存、通訊和依賴關係，對照硬體的容量、頻寬和算力做數量級估算。這類估算人容易出錯，AI 也一樣：只算權重讀取而忘了 KV 快取，按峰值算力推算速度而不查頻寬能否供給，把工作平分給多張卡卻遺漏卡間通訊，漏掉任何一項，結論都可能偏離幾倍甚至幾個數量級。從 FPGA 加速 Bing 搜尋排序、昇騰 AKG 運算元生成到 UB 萬卡互聯，反覆出現的是同一條線索：<strong>資料搬移</strong>。本書因此反覆追問五個問題：<strong>搬什麼、搬多少、搬幾次、經過哪裡、誰必須等它。</strong></p>
+<p>更多寫作背景見<a href="introduction.html">前言</a>。目前書稿仍是初稿，正在持續修訂。</p>
+<h2 id="十二章導讀">十二章導讀<a class="headerlink" href="#十二章導讀" title="Permanent link">&para;</a></h2>
+<p>從一次模型執行的資源帳開始，依次走過模型架構與負載、加速器與運算元、超節點與網路、推理與訓練系統，最後回到排程與端邊雲的部署選擇。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">章</th>
+<th>主題</th>
+<th>主要問題</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td><a href="chapter01.html">初識 AI Infra</a></td>
+<td>一次生成需要多少視訊記憶體、計算和資料讀寫？</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td><a href="chapter02.html">模型架構</a></td>
+<td>注意力、歷史狀態與專家結構如何改變系統需求？</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td><a href="chapter03.html">推理與訓練負載</a></td>
+<td>任務階段、到達模式和狀態壽命如何影響資源需求？</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td><a href="chapter04.html">加速器架構</a></td>
+<td>如何在計算、儲存、頻寬、功耗與成本之間取捨？</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td><a href="chapter05.html">運算元與執行時</a></td>
+<td>融合、複用、併發和排程如何減少執行開銷？</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td><a href="chapter06.html">超節點</a></td>
+<td>多裝置協作如何平衡容量、吞吐和同步代價？</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td><a href="chapter07.html">資料中心網路</a></td>
+<td>網路頻寬、通訊方式和擁塞怎樣影響計算效率？</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td><a href="chapter08.html">推理最佳化</a></td>
+<td>批處理、KV 管理、解除安裝與推測解碼何時有效？</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td><a href="chapter09.html">分散式推理</a></td>
+<td>如何放置計算和狀態，並處理擴縮容與恢復？</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td><a href="chapter10.html">訓練系統</a></td>
+<td>怎樣安排視訊記憶體、通訊和重算，讓訓練更高效？</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td><a href="chapter11.html">資源排程與執行環境</a></td>
+<td>模型服務和工具環境如何共享資源，減少等待？</td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td><a href="chapter12.html">端邊雲協同</a></td>
+<td>任務放在本地、邊緣還是雲端，怎樣兼顧效果、延遲和成本？</td>
+</tr>
+</tbody>
+</table>
+<h2 id="怎麼讀">怎麼讀<a class="headerlink" href="#怎麼讀" title="Permanent link">&para;</a></h2>
+<p>按左側目錄從<a href="introduction.html">前言</a>和第一章順序讀下來最省力，前面章節建立的模型、硬體和負載設定，後面各章會反覆用到。也可以用搜尋直接查詢某個模型、運算元或系統機制。每章提供節目錄、公式、配圖、腳註，以及上一章和下一章導航。</p>
+<p>書中有大量公式、表格與交叉引用，完整排版以 <a href="https://github.com/bojieli/ai-infra-book/releases/latest/download/AI-Infra-Book-ZH-TW.pdf">PDF 版</a>為準。</p>
+<h2 id="配套材料">配套材料<a class="headerlink" href="#配套材料" title="Permanent link">&para;</a></h2>
+<p>書中的數字大多可以復算，計算工具、實驗記錄與配圖指令碼都在 GitHub 倉庫裡：</p>
+<ul>
+<li><a href="https://github.com/XiaYiHann/ai-infra-book/blob/3bdcb4fcab73010eeaccf31cc10a8242a895d82e/calculations/README.md">量化計算專案</a>：書中可復算數值的計算工具與固定輸入</li>
+<li><a href="https://github.com/XiaYiHann/ai-infra-book/blob/3bdcb4fcab73010eeaccf31cc10a8242a895d82e/experiments/README.md">配套實驗</a>：按章節組織的實驗與執行記錄</li>
+<li><a href="https://github.com/XiaYiHann/ai-infra-book/blob/3bdcb4fcab73010eeaccf31cc10a8242a895d82e/manuscripts/README.md">正文與配圖</a>：各章配圖清單與繪圖指令碼</li>
+</ul>
+<p>本網站由倉庫中的 Markdown 自動建置；繁體中文正文位於 <code>book-zh-tw/</code>，由 <code>manuscripts/</code> 下的簡體原稿轉換而來。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到頂端
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="頁腳" >
+        
+        
+          
+          <a href="introduction.html" class="md-footer__link md-footer__link--next" aria-label="下一頁: 前言">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一頁
+              </span>
+              <div class="md-ellipsis">
+                前言
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.footer", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u8907\u88fd", "clipboard.copy": "\u8907\u88fd", "search.result.more.one": "\u6b64\u9801\u5c1a\u6709 1 \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.more.other": "\u6b64\u9801\u5c1a\u6709 # \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.none": "\u6c92\u6709\u7b26\u5408\u7684\u9805\u76ee", "search.result.one": "\u627e\u5230 1 \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.other": "\u627e\u5230 # \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.placeholder": "\u6253\u5b57\u9032\u884c\u641c\u5c0b", "search.result.term.missing": "\u7f3a\u5c11\u5b57\u8a5e", "select.version": "\u9078\u64c7\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="assets/math.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
